@@ -1,4 +1,4 @@
-schema_version: "AAP-Trigger-Core-0.1"
+schema_version: "AA-Trigger-Core-0.1"
 
 # Language of this encoded file (ISO 639-1, e.g. "en", "fr", "es")
 language: "en"
