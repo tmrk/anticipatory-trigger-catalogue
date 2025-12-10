@@ -1,0 +1,123 @@
+schema_version: "AAP-Trigger-Core-0.1"
+
+# Language of this encoded file (ISO 639-1, e.g. "en", "fr", "es")
+language: "en"
+
+# Unique identifier for this trigger set (you decide the convention)
+trigger_set_id: "EXAMPLE-FJ-TC-2025"
+
+# Human-friendly name for this trigger set
+name: "Example – Fiji Tropical Cyclone – Triggers"
+
+# Type of plan this comes from: EAP, sEAP, AAP, AAF, Protocol, etc
+document_type: "EAP"
+
+source:
+  # Title of the original plan
+  document_title: "Example Early Action Protocol for Tropical Cyclones in Fiji"
+
+  # Main organisations listed on the plan
+  organisations:
+    - "Fiji Red Cross Society"
+    - "IFRC"
+
+  # Countries covered (you can use ISO country codes if you like, e.g. "FJ", "MW").
+  countries:
+    - "FJ"
+
+  # Year the plan refers to (publication or latest revision year)
+  year: 2025
+
+  # Language of the original plan (ISO 639-1, e.g. "en", "fr", "es")
+  document_language: "en"
+
+  # Direct link to the PDF/DOCX if possible (prefer a permanent URL)
+  document_download_url: "https://example.org/path/to/document.pdf"
+
+  # Landing page where the plan can be found (e.g. Anticipation Hub, agency site)
+  document_landing_page_url: "https://example.org/path/to/landing-page"
+
+  # Optional but useful pointer to where triggers are in the document
+  section_reference: "Section 4.3 – Trigger mechanism"
+
+  # Date you last accessed/downloaded the document (YYYY-MM-DD)
+  accessed_date: "2025-12-10"
+
+metadata:
+  # Main hazard (free text, e.g. "flood", "river_flood", "drought", 
+  # "tropical_cyclone", "heatwave", "cold_wave", "conflict", "epidemic")
+  hazard: "tropical_cyclone"
+
+  # Organisation that maintains or "owns" this trigger set
+  owner_org: "Fiji Red Cross Society"
+
+# Each phase represents one stage (readiness, activation, T1, T2, etc.)
+phases:
+  - phase_id: "prep_120h"
+    phase_name: "Readiness trigger"
+    # Generic type so we can later compare across contexts if needed.
+    # Common values: readiness, activation, scale_up, scale_down, monitoring, other
+    phase_type: "readiness"
+    sequence: 1
+
+    # Lead time window for this phase. Use hours by default; days are optional
+    lead_time:
+      min_hours: 96
+      max_hours: 120
+      min_days: null
+      max_days: null
+
+    # Exact or closely paraphrased trigger text from the original plan for this phase
+    # This is for humans to verify that the encoding matches the document
+    source_trigger_text: |-
+      Paste or paraphrase the original readiness trigger statement for this phase
+      from the EAP/AAP/AAF here.
+
+    # Indicators used in this phase, defined inline
+    indicators:
+      - id: "tc_wind_cat3"
+        description: "Forecast max sustained wind speed at target locations"
+        # Basic type of metric (keep it simple)
+        # Typical values: value, probability, index, category, boolean, manual
+        metric_type: "value"
+        unit: "km/h"
+        condition:
+          # Basic numeric or categorical operator
+          # Typical values: >=, >, <=, <, ==, !=
+          operator: ">="
+          value: 118
+
+    # Clean human-readable explanation of when this phase is considered met
+    trigger_logic:
+      human_readable: >
+        Summarise in plain language when this readiness phase should be considered
+        triggered, using the indicators above.
+
+  - phase_id: "act_72h"
+    phase_name: "Activation trigger"
+    phase_type: "activation"
+    sequence: 2
+
+    lead_time:
+      min_hours: 48
+      max_hours: 72
+      min_days: null
+      max_days: null
+
+    source_trigger_text: |-
+      Paste or paraphrase the original activation trigger statement for this phase
+      from the EAP/AAP/AAF here.
+
+    indicators:
+      - id: "tc_wind_cat3"
+        description: "Forecast max sustained wind speed at target locations"
+        metric_type: "value"
+        unit: "km/h"
+        condition:
+          operator: ">="
+          value: 118
+
+    trigger_logic:
+      human_readable: >
+        Summarise in plain language when full activation and early actions start
+        for this phase.
