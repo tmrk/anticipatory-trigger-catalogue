@@ -1,0 +1,394 @@
+schema_version: AA-Trigger-Core-0.1.1
+language: en
+trigger_set_id: NP_WESTERN_TERAI_FLOOD_NRCS_sEAP_2024
+name: Nepal Western Terai – Flood – NRCS sEAP triggers
+document_type: sEAP
+source:
+  document_title: SIMPLIFIED EARLY ACTION PROTOCOL – Nepal, Western Terai | Flood
+  organisations:
+    - Nepal Red Cross Society
+    - IFRC
+    - Danish Red Cross
+    - Finnish Red Cross
+    - RCRC Climate Centre
+    - National Disaster Risk Reduction and Management Authority (NDRRMA)
+    - Department of Hydrology and Meteorology (DHM)
+    - ICIMOD
+  countries:
+    - NP
+  year: 2024
+  document_language: en
+  document_download_url: "https://www.anticipation-hub.org/Documents/EAPs/sEAP_Nepal_Floods_2024.pdf"
+  document_landing_page_url: ""
+  section_reference: Trigger(s) statement; Readiness Trigger (3–5 days) and Activation Trigger (48h) sections, including trigger threshold justification.
+  original_document_type: Simplified Early Action Protocol (sEAP)
+  accessed_date: 2025-12-10
+metadata:
+  participating_orgs:
+    - Nepal Red Cross Society
+    - IFRC
+    - Danish Red Cross
+    - Finnish Red Cross
+    - RCRC Climate Centre
+    - National Disaster Risk Reduction and Management Authority (NDRRMA)
+    - Department of Hydrology and Meteorology (DHM)
+    - ICIMOD
+  funding_instruments:
+    - name: IFRC DREF
+      provider: IFRC
+      notes: DREF funds reimburse NRCS once readiness stage is met and funds are released from IFRC.
+  linked_systems:
+    - NDRRMA BIPAD flood impact-based forecasting (IBF) dashboard
+    - National monsoon preparedness and response planning processes
+    - District and local forecast-based action SOPs for Karnali and Babai river basins
+  custodians:
+    - Nepal Red Cross Society
+    - National Disaster Risk Reduction and Management Authority (NDRRMA)
+    - Department of Hydrology and Meteorology (DHM)
+data_sources:
+  - id: GLOFAS
+    name: Global Flood Awareness System
+    provider: ECMWF
+    type: model
+    url: https://www.globalfloods.eu/
+    notes: Used via the IBF dashboard in the BIPAD system for readiness alerts based on return-period flows and exceedance probabilities.
+  - id: DHM_BULLETIN
+    name: DHM flood and weather bulletins
+    provider: Department of Hydrology and Meteorology (DHM), Nepal
+    type: forecast
+    url: ""
+    notes: Three-day flood and weather bulletins including river-level forecasts, warning and danger level exceedance and colour-coded risk levels.
+  - id: DHM_NWP_RIMES
+    name: DHM / RIMES numerical weather prediction and special weather advisories
+    provider: DHM and RIMES
+    type: forecast
+    url: ""
+    notes: Numerical weather prediction and special weather advisories from DHM and RIMES describing extreme and widespread rainfall over the next 3 days.
+  - id: ICIMOD_RFO
+    name: ICIMOD Regional Flood Outlook
+    provider: ICIMOD
+    type: forecast
+    url: ""
+    notes: Operational regional flood outlook for Karnali and West Rapti rivers, with lead times up to 72 hours.
+  - id: DHM_REALTIME_GAUGES
+    name: DHM real-time river gauge network
+    provider: Department of Hydrology and Meteorology (DHM), Nepal
+    type: observation
+    url: "https://dhm.gov.np/hydrology/river-watch"
+    notes: Real-time river levels and trends at Chisapani, Chepang and Kusum gauge stations used to confirm danger level exceedance and rising trends.
+spatial_conditions:
+  - id: station_karnali_chisapani
+    label: Karnali River at Chisapani gauge
+    feature_type: station
+    station:
+      provider: DHM
+      station_name: Chisapani
+      station_type: river_gauge
+      river_name: Karnali
+      country: NP
+  - id: station_babai_chepang
+    label: Babai River at Chepang gauge
+    feature_type: station
+    station:
+      provider: DHM
+      station_name: Chepang
+      station_type: river_gauge
+      river_name: Babai
+      country: NP
+  - id: station_west_rapti_kusum
+    label: West Rapti River at Kusum gauge
+    feature_type: station
+    station:
+      provider: DHM
+      station_name: Kusum
+      station_type: river_gauge
+      river_name: West Rapti
+      country: NP
+phases:
+  - phase_id: readiness_3_5d
+    phase_name: Readiness trigger – 3–5 days lead time
+    phase_type: readiness
+    sequence: 1
+    lead_time:
+      min_days: 3
+      max_days: 5
+    applies_to_spatial_condition_ids:
+      - station_karnali_chisapani
+      - station_babai_chepang
+      - station_west_rapti_kusum
+    source_trigger_text: |
+      Readiness Trigger (3-5 days lead time)
+      The readiness trigger for Karnali, Babai and West Rapti will be reached when Global Flood Awareness System (GLOFAS) predicts more than 2-year return period flow in next 3 to 5 days with a probability of 50% or more at Chisapani, Chepang and Kusum station respectively.
+      Alternatively, the readiness trigger for Babai and West Rapti will also be confirmed when the numerical weather prediction (NWP) from DHM/RIMES or any special weather advisories/bulletin from DHM predicts extreme and widespread rainfall for next three days across those basin areas and districts provided that these rivers are already flowing at stage level less than 2m from existing danger level.
+    indicators:
+      - id: glofas_karnali_chisapani_rp2_prob50_3to5d
+        label: Karnali at Chisapani – GLOFAS ≥2-year flow, ≥50% in 3–5 days
+        description: Probability from GLOFAS that river discharge at Karnali–Chisapani exceeds the 2-year return period threshold within the next 3–5 days, expressed as exceedance probability.
+        role: hazard
+        data_source_id: GLOFAS
+        spatial_condition_id: station_karnali_chisapani
+        variable: return_period_exceedance_probability
+        metric_type: probability
+        unit: "%"
+        lead_time:
+          min_days: 3
+          max_days: 5
+        aggregation:
+          temporal: max
+          spatial: point
+        condition:
+          operator: ">="
+          value: 50
+      - id: glofas_babai_chepang_rp2_prob50_3to5d
+        label: Babai at Chepang – GLOFAS ≥2-year flow, ≥50% in 3–5 days
+        description: Probability from GLOFAS that river discharge at Babai–Chepang exceeds the 2-year return period threshold within the next 3–5 days, expressed as exceedance probability.
+        role: hazard
+        data_source_id: GLOFAS
+        spatial_condition_id: station_babai_chepang
+        variable: return_period_exceedance_probability
+        metric_type: probability
+        unit: "%"
+        lead_time:
+          min_days: 3
+          max_days: 5
+        aggregation:
+          temporal: max
+          spatial: point
+        condition:
+          operator: ">="
+          value: 50
+      - id: glofas_west_rapti_kusum_rp2_prob50_3to5d
+        label: West Rapti at Kusum – GLOFAS ≥2-year flow, ≥50% in 3–5 days
+        description: Probability from GLOFAS that river discharge at West Rapti–Kusum exceeds the 2-year return period threshold within the next 3–5 days, expressed as exceedance probability.
+        role: hazard
+        data_source_id: GLOFAS
+        spatial_condition_id: station_west_rapti_kusum
+        variable: return_period_exceedance_probability
+        metric_type: probability
+        unit: "%"
+        lead_time:
+          min_days: 3
+          max_days: 5
+        aggregation:
+          temporal: max
+          spatial: point
+        condition:
+          operator: ">="
+          value: 50
+      - id: nwp_babai_extreme_rain_3d
+        label: Babai basin – extreme and widespread rainfall forecast (3 days)
+        description: DHM/RIMES numerical weather prediction or special DHM weather advisories/bulletins indicating extreme and widespread rainfall across Babai basin areas and districts over the next 3 days.
+        role: hazard
+        data_source_id: DHM_NWP_RIMES
+        spatial_condition_id: station_babai_chepang
+        variable: extreme_widespread_rainfall_flag
+        metric_type: boolean
+        unit: boolean
+        lead_time:
+          min_days: 3
+          max_days: 3
+        aggregation:
+          temporal: any
+          spatial: point
+        condition:
+          operator: "=="
+          value: true
+      - id: stagegap_babai_within2m_danger
+        label: Babai at Chepang – current stage within 2 m below danger level
+        description: Current observed river stage at Babai–Chepang expressed as distance below the DHM-defined danger level; this indicator is true when the distance is ≤ 2 m (i.e. the river is already less than 2 m below danger level).
+        role: hazard
+        data_source_id: DHM_REALTIME_GAUGES
+        spatial_condition_id: station_babai_chepang
+        variable: distance_below_danger_level
+        metric_type: value
+        unit: m
+        lead_time:
+          min_hours: 0
+          max_hours: 0
+        aggregation:
+          temporal: none
+          spatial: point
+        condition:
+          operator: "<="
+          value: 2.0
+      - id: nwp_west_rapti_extreme_rain_3d
+        label: West Rapti basin – extreme and widespread rainfall forecast (3 days)
+        description: DHM/RIMES numerical weather prediction or special DHM weather advisories/bulletins indicating extreme and widespread rainfall across West Rapti basin areas and districts over the next 3 days.
+        role: hazard
+        data_source_id: DHM_NWP_RIMES
+        spatial_condition_id: station_west_rapti_kusum
+        variable: extreme_widespread_rainfall_flag
+        metric_type: boolean
+        unit: boolean
+        lead_time:
+          min_days: 3
+          max_days: 3
+        aggregation:
+          temporal: any
+          spatial: point
+        condition:
+          operator: "=="
+          value: true
+      - id: stagegap_west_rapti_within2m_danger
+        label: West Rapti at Kusum – current stage within 2 m below danger level
+        description: Current observed river stage at West Rapti–Kusum expressed as distance below the DHM-defined danger level; this indicator is true when the distance is ≤ 2 m (i.e. the river is already less than 2 m below danger level).
+        role: hazard
+        data_source_id: DHM_REALTIME_GAUGES
+        spatial_condition_id: station_west_rapti_kusum
+        variable: distance_below_danger_level
+        metric_type: value
+        unit: m
+        lead_time:
+          min_hours: 0
+          max_hours: 0
+        aggregation:
+          temporal: none
+          spatial: point
+        condition:
+          operator: "<="
+          value: 2.0
+    trigger_logic:
+      boolean_expression: glofas_karnali_chisapani_rp2_prob50_3to5d OR glofas_babai_chepang_rp2_prob50_3to5d OR glofas_west_rapti_kusum_rp2_prob50_3to5d OR (nwp_babai_extreme_rain_3d AND stagegap_babai_within2m_danger) OR (nwp_west_rapti_extreme_rain_3d AND stagegap_west_rapti_within2m_danger)
+      explanation: Readiness is met when GLOFAS forecasts at least a 50% probability that 2-year return period flow is exceeded at any of the three trigger stations within 3–5 days, or, for Babai and West Rapti only, when DHM/RIMES NWP or DHM special weather advisories predict extreme and widespread rainfall over the next 3 days while the current river level is already within 2 m below the DHM-defined danger level.
+  - phase_id: activation_48h
+    phase_name: Activation trigger – 48-hour lead time
+    phase_type: activation
+    sequence: 2
+    lead_time:
+      min_hours: 48
+      max_hours: 48
+    applies_to_spatial_condition_ids:
+      - station_karnali_chisapani
+      - station_babai_chepang
+      - station_west_rapti_kusum
+    source_trigger_text: "Activation Trigger (48h lead time):  River Name / Station Name / Existing Danger Level (metre) / Threshold River Level (metre) Karnali – Chisapani – 10.8 – 11.8 West Rapti – Kusum – 7.8 – 7.8 Babai – Chepang – 6.8 – 6.8 The activation trigger for Karnali will be reached when the DHM flood forecast bulletin or regional flood outlook from ICIMOD or any special flood advisories from DHM predict the water level of Karnali in Chisapani to rise 1 metre above the existing danger level in the next 48 hours. The activation trigger for Babai and West Rapti River will be reached when the DHM flood forecast bulletin or regional flood outlook from ICIMOD or any special flood advisories from DHM predict water levels of Babai and West Rapti to rise to their existing danger levels in Chepang and Kusum station respectively in next 48 hours. However, the evacuation of the most vulnerable population and their livestock will only be implemented once the rivers surpass the danger level (based on the real-time river status from DHM) and are in a rising trend in respective gauging stations. This means there is a stop mechanism in place especially for the action related to the evacuation of the population."
+    indicators:
+      - id: dhm_stage_karnali_chisapani_48h_11_8m
+        label: Karnali at Chisapani – 48h forecast stage ≥ 11.8 m
+        description: 48-hour forecast river level at Karnali–Chisapani from DHM flood bulletin (and cross-checked with ICIMOD regional flood outlook and DHM special flood advisories), compared against the 11.8 m threshold (1 m above DHM danger level of 10.8 m).
+        role: hazard
+        data_source_id: DHM_BULLETIN
+        spatial_condition_id: station_karnali_chisapani
+        variable: river_stage
+        metric_type: value
+        unit: m
+        lead_time:
+          min_hours: 48
+          max_hours: 48
+        aggregation:
+          temporal: max
+          spatial: point
+        condition:
+          operator: ">="
+          value: 11.8
+          reference_name: danger_level
+          reference_offset:
+            unit: m
+            value: 1.0
+          reference_value_type: absolute
+      - id: dhm_stage_babai_chepang_48h_6_8m
+        label: Babai at Chepang – 48h forecast stage ≥ 6.8 m (danger level)
+        description: 48-hour forecast river level at Babai–Chepang from DHM flood bulletin (and cross-checked with ICIMOD regional flood outlook and DHM special flood advisories), compared against the DHM danger level of 6.8 m.
+        role: hazard
+        data_source_id: DHM_BULLETIN
+        spatial_condition_id: station_babai_chepang
+        variable: river_stage
+        metric_type: value
+        unit: m
+        lead_time:
+          min_hours: 48
+          max_hours: 48
+        aggregation:
+          temporal: max
+          spatial: point
+        condition:
+          operator: ">="
+          value: 6.8
+          reference_name: danger_level
+          reference_offset:
+            unit: m
+            value: 0.0
+          reference_value_type: absolute
+      - id: dhm_stage_west_rapti_kusum_48h_7_8m
+        label: West Rapti at Kusum – 48h forecast stage ≥ 7.8 m (danger level)
+        description: 48-hour forecast river level at West Rapti–Kusum from DHM flood bulletin (and cross-checked with ICIMOD regional flood outlook and DHM special flood advisories), compared against the DHM danger level of 7.8 m.
+        role: hazard
+        data_source_id: DHM_BULLETIN
+        spatial_condition_id: station_west_rapti_kusum
+        variable: river_stage
+        metric_type: value
+        unit: m
+        lead_time:
+          min_hours: 48
+          max_hours: 48
+        aggregation:
+          temporal: max
+          spatial: point
+        condition:
+          operator: ">="
+          value: 7.8
+          reference_name: danger_level
+          reference_offset:
+            unit: m
+            value: 0.0
+          reference_value_type: absolute
+      - id: rt_karnali_chisapani_above_danger_and_rising
+        label: Karnali at Chisapani – real-time stage above danger and rising
+        description: Boolean flag derived from DHM real-time gauge data indicating that the Karnali at Chisapani has surpassed the DHM-defined danger level and the stage is currently in a rising trend.
+        role: hazard
+        data_source_id: DHM_REALTIME_GAUGES
+        spatial_condition_id: station_karnali_chisapani
+        variable: stage_above_danger_and_rising_flag
+        metric_type: boolean
+        unit: boolean
+        lead_time:
+          min_hours: 0
+          max_hours: 0
+        aggregation:
+          temporal: any
+          spatial: point
+        condition:
+          operator: "=="
+          value: true
+      - id: rt_babai_chepang_above_danger_and_rising
+        label: Babai at Chepang – real-time stage above danger and rising
+        description: Boolean flag derived from DHM real-time gauge data indicating that the Babai at Chepang has surpassed the DHM-defined danger level and the stage is currently in a rising trend.
+        role: hazard
+        data_source_id: DHM_REALTIME_GAUGES
+        spatial_condition_id: station_babai_chepang
+        variable: stage_above_danger_and_rising_flag
+        metric_type: boolean
+        unit: boolean
+        lead_time:
+          min_hours: 0
+          max_hours: 0
+        aggregation:
+          temporal: any
+          spatial: point
+        condition:
+          operator: "=="
+          value: true
+      - id: rt_west_rapti_kusum_above_danger_and_rising
+        label: West Rapti at Kusum – real-time stage above danger and rising
+        description: Boolean flag derived from DHM real-time gauge data indicating that the West Rapti at Kusum has surpassed the DHM-defined danger level and the stage is currently in a rising trend.
+        role: hazard
+        data_source_id: DHM_REALTIME_GAUGES
+        spatial_condition_id: station_west_rapti_kusum
+        variable: stage_above_danger_and_rising_flag
+        metric_type: boolean
+        unit: boolean
+        lead_time:
+          min_hours: 0
+          max_hours: 0
+        aggregation:
+          temporal: any
+          spatial: point
+        condition:
+          operator: "=="
+          value: true
+    trigger_logic:
+      boolean_expression: dhm_stage_karnali_chisapani_48h_11_8m OR dhm_stage_babai_chepang_48h_6_8m OR dhm_stage_west_rapti_kusum_48h_7_8m
+      explanation: Activation is met when DHM flood forecasts (supported by ICIMOD regional flood outlook and DHM special flood advisories) predict that within 48 hours at least one of the three trigger stations will reach its defined threshold river level: 11.8 m (1 m above danger level) at Karnali–Chisapani, or the existing danger levels of 6.8 m at Babai–Chepang or 7.8 m at West Rapti–Kusum.
+    stop_logic:
+      boolean_expression: NOT (rt_karnali_chisapani_above_danger_and_rising OR rt_babai_chepang_above_danger_and_rising OR rt_west_rapti_kusum_above_danger_and_rising)
+      explanation: Evacuation-related early actions remain paused or are cancelled unless real-time DHM gauges show that at least one of the rivers at the trigger stations has already surpassed its danger level and is in a rising trend; evacuation is only implemented once this real-time confirmation is observed.

@@ -83,6 +83,11 @@ data_sources:
     type: "index"
     url: "https://example.org/pmd/cdi"
     notes: "Composite of SPI, VHI, soil moisture, ENSO, etc."
+
+    # OPTIONAL: default units or conventions for variables from this source
+    default_units:
+      river_stage: "m"
+      discharge: "m3/s"
 ```
 
 ### 2.2 Indicator catalogue
@@ -124,7 +129,16 @@ phases:
 
 ### 2.3 Spatial conditions
 
-For triggers that explicitly refer to numbers of districts, provinces, basins, etc., you can add a `spatial_condition` to an indicator:
+Spatial conditions are used in two complementary ways:
+
+1. Inline `spatial_condition` on a condition, for logic like “CDI ≥ 70% in at least 3 districts”.
+2. `spatial_condition_id` on an indicator, to link it to a concrete location (station, basin, area) defined in the top-level `spatial_conditions` catalogue.
+
+#### 2.3.1 Inline spatial_condition for “number of admin units meeting threshold”
+
+Use this when the trigger text refers to a minimum number of admin units meeting a threshold.
+
+Example:
 
 ```yaml
       - use_indicator: "CDI"
@@ -134,12 +148,62 @@ For triggers that explicitly refer to numbers of districts, provinces, basins, e
           unit: "%"
         spatial_condition:
           metric: "admin_units_meeting_threshold"
-          admin_level: "district"
+          admin_level: "district"   # e.g. "district", "province", "municipality", "basin"
           operator: ">="
-          value: 3
+          value: 3                  # "at least 3 districts meet the CDI threshold"
 ```
 
-This covers designs like: "CDI ≥ 70 in at least three districts".
+Semantics: evaluate condition per admin unit at admin_level, count how many units meet it, then apply spatial_condition.operator and spatial_condition.value to that count. 
+
+#### 2.3.2 Linking indicators to concrete locations using spatial_condition_id
+
+Use this when the location of measurement (e.g. a river gauge) is part of the trigger.
+
+Example indicator:
+
+```yaml
+    indicators:
+      - id: "dhm_stage_karnali_chisapani_48h"
+        label: "Karnali at Chisapani stage (48h)"
+        description: "48-hour forecast river level at Karnali–Chisapani gauge from DHM."
+        data_source_id: "DHM_BULLETIN"
+        spatial_condition_id: "station_karnali_chisapani"
+        variable: "river_stage"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 48
+          max_hours: 48
+        condition:
+          operator: ">="
+          value: 11.8
+          reference_value_type: "relative_to_reference"
+          reference_name: "danger_level"
+          reference_offset:
+            value: 1.0
+            unit: "m"
+```
+
+Corresponding spatial_conditions entry:
+
+```yaml
+spatial_conditions:
+  - id: "station_karnali_chisapani"
+    label: "Karnali River at Chisapani gauge"
+    feature_type: "station"
+    station:
+      provider: "DHM"
+      station_code: "CHISAPANI"
+      station_name: "Chisapani"
+      station_type: "river_gauge"
+      river_name: "Karnali"
+      country: "NP"
+    geometry:
+      type: "Point"
+      coordinates: [80.967, 28.683]   # [lon, lat]
+```
+
+Inline `spatial_condition` answers "in how many places does this hold?", while `spatial_condition_id` plus `spatial_conditions` answers "where is this measured?". Both can be used together to reconstruct full human-readable trigger statements.
 
 ---
 

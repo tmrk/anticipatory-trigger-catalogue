@@ -1,123 +1,129 @@
-schema_version: "AA-Trigger-Core-0.1"
+schema_version: "AA-Trigger-Core-0.1.1"
 
-# Language of this encoded file (ISO 639-1, e.g. "en", "fr", "es")
-language: "en"
+# REQUIRED: language of this file
+language: "en"  # ISO 639-1 code
 
-# Unique identifier for this trigger set (you decide the convention)
-trigger_set_id: "EXAMPLE-FJ-TC-2025"
+# REQUIRED: unique identifier for this trigger set
+trigger_set_id: "TEMPLATE_TRIGGER_SET_ID"
 
-# Human-friendly name for this trigger set
-name: "Example – Fiji Tropical Cyclone – Triggers"
+# REQUIRED: short human name for the trigger set
+name: "Template – HAZARD / COUNTRY / AREA"
 
-# Type of plan this comes from: EAP, sEAP, AAP, AAF, Protocol, etc
-document_type: "EAP"
+# REQUIRED: type of originating document
+# e.g. "EAP", "sEAP", "AAP", "AAF, SOP", "contingency_plan"
+document_type: "AAP"
 
+# REQUIRED: provenance of the human document
 source:
-  # Title of the original plan
-  document_title: "Example Early Action Protocol for Tropical Cyclones in Fiji"
-
-  # Main organisations listed on the plan
-  organisations:
-    - "Fiji Red Cross Society"
-    - "IFRC"
-
-  # Countries covered (you can use ISO country codes if you like, e.g. "FJ", "MW").
-  countries:
-    - "FJ"
-
-  # Year the plan refers to (publication or latest revision year)
-  year: 2025
-
-  # Language of the original plan (ISO 639-1, e.g. "en", "fr", "es")
+  document_title: "..."
+  organisations: []          # e.g. ["Nepal Red Cross Society", "IFRC"]
+  countries: []              # ISO 3166-1 alpha-2, e.g. ["NP"]
+  year: 2024
   document_language: "en"
+  document_download_url: ""
+  document_landing_page_url: ""
+  section_reference: ""      # where the trigger text is in the document
+  accessed_date: "YYYY-MM-DD"
+  original_document_type: "" # free text if needed
 
-  # Direct link to the PDF/DOCX if possible (prefer a permanent URL)
-  document_download_url: "https://example.org/path/to/document.pdf"
+# OPTIONAL: see SCHEMA_EXTENSIONS for extra sections such as:
+# - metadata
+# - data_sources
+# - spatial_conditions
+# - indicator_catalog
+# They can be added as top-level keys next to `phases`.
 
-  # Landing page where the plan can be found (e.g. Anticipation Hub, agency site)
-  document_landing_page_url: "https://example.org/path/to/landing-page"
+# =========================
+# CORE: phases & indicators
+# =========================
 
-  # Optional but useful pointer to where triggers are in the document
-  section_reference: "Section 4.3 – Trigger mechanism"
-
-  # Date you last accessed/downloaded the document (YYYY-MM-DD)
-  accessed_date: "2025-12-10"
-
-metadata:
-  # Main hazard (free text, e.g. "flood", "river_flood", "drought", 
-  # "tropical_cyclone", "heatwave", "cold_wave", "conflict", "epidemic")
-  hazard: "tropical_cyclone"
-
-  # Organisation that maintains or "owns" this trigger set
-  owner_org: "Fiji Red Cross Society"
-
-# Each phase represents one stage (readiness, activation, T1, T2, etc.)
 phases:
-  - phase_id: "prep_120h"
-    phase_name: "Readiness trigger"
-    # Generic type so we can later compare across contexts if needed.
-    # Common values: readiness, activation, scale_up, scale_down, monitoring, other
-    phase_type: "readiness"
-    sequence: 1
+  - phase_id: "PHASE_1_ID"       # REQUIRED: machine ID, used in systems
+    phase_name: "Readiness"      # REQUIRED: human-readable name
+    phase_type: "readiness"      # REQUIRED: "readiness" | "activation" | "scale_up" | "deactivation"
+    sequence: 1                  # REQUIRED: integer ordering of phases
 
-    # Lead time window for this phase. Use hours by default; days are optional
-    lead_time:
-      min_hours: 96
-      max_hours: 120
-      min_days: null
-      max_days: null
-
-    # Exact or closely paraphrased trigger text from the original plan for this phase
-    # This is for humans to verify that the encoding matches the document
-    source_trigger_text: |-
-      Paste or paraphrase the original readiness trigger statement for this phase
-      from the EAP/AAP/AAF here.
-
-    # Indicators used in this phase, defined inline
-    indicators:
-      - id: "tc_wind_cat3"
-        description: "Forecast max sustained wind speed at target locations"
-        # Basic type of metric (keep it simple)
-        # Typical values: value, probability, index, category, boolean, manual
-        metric_type: "value"
-        unit: "km/h"
-        condition:
-          # Basic numeric or categorical operator
-          # Typical values: >=, >, <=, <, ==, !=
-          operator: ">="
-          value: 118
-
-    # Clean human-readable explanation of when this phase is considered met
-    trigger_logic:
-      human_readable: >
-        Summarise in plain language when this readiness phase should be considered
-        triggered, using the indicators above.
-
-  - phase_id: "act_72h"
-    phase_name: "Activation trigger"
-    phase_type: "activation"
-    sequence: 2
-
+    # REQUIRED: lead time for this phase as a whole.
     lead_time:
       min_hours: 48
       max_hours: 72
-      min_days: null
-      max_days: null
+      min_days: 2
+      max_days: 3
 
+    # OPTIONAL: IDs of spatial_conditions describing where this phase applies
+    # (e.g. target river basins, districts). This is about *where the trigger is relevant*,
+    # not necessarily where each indicator is measured.
+    applies_to_spatial_condition_ids: []  # e.g. ["area_western_terai"]
+
+    # REQUIRED: exact human trigger paragraph(s) from the document
     source_trigger_text: |-
-      Paste or paraphrase the original activation trigger statement for this phase
-      from the EAP/AAP/AAF here.
+      Paste the exact trigger paragraph(s) for this phase here.
 
+    # REQUIRED: indicators that appear in the trigger logic
     indicators:
-      - id: "tc_wind_cat3"
-        description: "Forecast max sustained wind speed at target locations"
-        metric_type: "value"
-        unit: "km/h"
-        condition:
-          operator: ">="
-          value: 118
+      - id: "INDICATOR_1_ID"   # REQUIRED: unique within this trigger set
+        label: "Short label for UIs and auto-text"
+        description: "Longer human description of what is being measured."
 
+        # OPTIONAL: semantic classification
+        # (helps with auto-text like “hazard indicator” vs “impact indicator”)
+        role: "hazard"         # "hazard" | "exposure" | "vulnerability" | "impact" | "operational"
+
+        # OPTIONAL: reference to the data source providing this indicator
+        # (see `data_sources` extension)
+        data_source_id: "DATA_SOURCE_ID"
+
+        # OPTIONAL BUT IMPORTANT: where this indicator is measured / applies.
+        # For gauge- or grid-based indicators, point this at a spatial_conditions
+        # entry of feature_type: "station" or "grid_cell".
+        spatial_condition_id: "SPATIAL_CONDITION_ID"
+
+        # OPTIONAL: name of the variable in the data system (API / column name / etc.)
+        variable: "river_stage"   # e.g. river_stage, discharge, q2_return_period
+
+        # REQUIRED: how to interpret the metric
+        metric_type: "value"      # "value" | "probability" | "boolean" | "category"
+        unit: "m"                 # null for boolean / non-numeric
+
+        # OPTIONAL: override phase-level lead time if needed
+        lead_time:
+          min_hours: 48
+          max_hours: 48
+
+        # OPTIONAL: aggregation rules for data cubes (forecasts, grids, etc.)
+        aggregation:
+          temporal: "max"         # "max" | "min" | "mean" | "sum" | "any" | "all" | "none"
+          spatial: "point"        # "point" | "basin_average" | "district_total" | "none"
+
+        # REQUIRED: the threshold condition for this indicator
+        condition:
+          operator: ">="          # ">= | > | <= | < | == | != | in | not_in"
+          value: 11.8             # number or string or list, depending on metric_type
+
+          # OPTIONAL: extra semantics so a machine can reproduce phrases like
+          # “1 m above the danger level” instead of just “11.8 m”.
+          reference_value_type: "absolute"    # "absolute" | "relative_to_reference"
+          reference_name: "danger_level"      # e.g. "danger_level", "warning_level"
+          reference_offset:
+            value: 1.0                        # e.g. 1.0 m above reference
+            unit: "m"
+
+    # REQUIRED: machine-readable logic over indicator IDs.
+    # This is the *minimal* thing an engine needs to know how to fire the trigger.
     trigger_logic:
-      human_readable: >
-        Summarise in plain language when full activation and early actions start
-        for this phase.
+      boolean_expression: "INDICATOR_1_ID AND INDICATOR_2_ID"
+      # The boolean_expression is a simple infix expression over indicator IDs
+      # using operators AND, OR, NOT and parentheses.
+
+      # OPTIONAL: free-text explanation of the logic. This can be re-generated
+      # from boolean_expression + indicator labels, but keeping it helps traceability.
+      explanation: >-
+        Short free-text explanation of how indicators combine for this phase.
+
+    # OPTIONAL: stop / deactivation logic for the phase once it has fired
+    stop_logic:
+      boolean_expression: "NOT INDICATOR_3_ID"
+      explanation: >-
+        Optional logic that defines when actions linked to this phase should be
+        paused or cancelled (e.g. “evacuation stops once gauges fall below
+        danger level or start to drop”).
