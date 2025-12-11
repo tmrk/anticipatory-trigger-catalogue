@@ -1,8 +1,6 @@
 # Anticipatory Trigger Catalog & Schema
 
-This repository is an experiment in describing **anticipatory action triggers**
-in a simple, human-readable and machine-readable way, and gradually building a
-catalogue of trigger models from real plans.
+This repository is an experiment in describing **anticipatory action triggers** in a simple, human-readable and machine-readable way, and gradually building a catalogue of trigger models from real plans.
 
 ## Why
 

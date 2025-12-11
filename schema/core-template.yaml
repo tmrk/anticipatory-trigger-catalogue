@@ -1,4 +1,4 @@
-schema_version: "AA-Trigger-Core-0.1.1"
+schema_version: "AA-Trigger-Core-0.1.2"
 
 # REQUIRED: language of this file
 language: "en"  # ISO 639-1 code
@@ -16,22 +16,38 @@ document_type: "AAP"
 # REQUIRED: provenance of the human document
 source:
   document_title: "..."
-  organisations: []          # e.g. ["Nepal Red Cross Society", "IFRC"]
+  implementing_org: "..."    # main organisation responsible (e.g. "Nepal Red Cross Society")
   countries: []              # ISO 3166-1 alpha-2, e.g. ["NP"]
   year: 2024
   document_language: "en"
-  document_download_url: ""
-  document_landing_page_url: ""
+  document_download_url: ""  # direct or best-available link to the PDF/DOC
+  aa_scheme: "RCRC_DREF"     # e.g. "RCRC_DREF", "CERF_AA", "START_READY", "WAHAFA", "GOV_AA", "OTHER"
   section_reference: ""      # where the trigger text is in the document
   accessed_date: "YYYY-MM-DD"
-  original_document_type: "" # free text if needed
+  original_document_type: "" # free text if needed (e.g. "Simplified Early Action Protocol")
 
-# OPTIONAL: see SCHEMA_EXTENSIONS for extra sections such as:
-# - metadata
-# - data_sources
-# - spatial_conditions
-# - indicator_catalog
-# They can be added as top-level keys next to `phases`.
+# OPTIONAL BUT RECOMMENDED WHEN RELEVANT:
+# Minimal catalogue of data sources used by indicators.
+data_sources:
+  - id: "DATA_SOURCE_ID"
+    name: "Short name of the data source"         # e.g. "Global Flood Awareness System"
+    provider: "Owning agency or system"           # e.g. "ECMWF", "DHM"
+    type: "forecast"                              # observation | forecast | model | index | manual | other
+    url: "https://example.org/path"
+
+# OPTIONAL BUT RECOMMENDED WHEN RELEVANT:
+# Catalogue of spatial objects (stations, basins, areas, etc.) where triggers apply.
+spatial_conditions:
+  - id: "SPATIAL_CONDITION_ID"
+    label: "Karnali River at Chisapani gauge"
+    feature_type: "station"                       # station | basin | area | grid_cell | other
+    station:
+      provider: "DHM"
+      station_name: "Chisapani"
+      station_type: "river_gauge"
+      river_name: "Karnali"
+      country: "NP"
+    # geometry, basin, admin_areas etc. can be added as per SCHEMA_EXTENSIONS.md if available.
 
 # =========================
 # CORE: phases & indicators
@@ -44,86 +60,65 @@ phases:
     sequence: 1                  # REQUIRED: integer ordering of phases
 
     # REQUIRED: lead time for this phase as a whole.
+    # Use hours by default; days are optional if the plan uses them explicitly.
     lead_time:
-      min_hours: 48
-      max_hours: 72
-      min_days: 2
-      max_days: 3
+      min_hours: 72
+      max_hours: 120
+      min_days: null
+      max_days: null
 
     # OPTIONAL: IDs of spatial_conditions describing where this phase applies
     # (e.g. target river basins, districts). This is about *where the trigger is relevant*,
     # not necessarily where each indicator is measured.
     applies_to_spatial_condition_ids: []  # e.g. ["area_western_terai"]
 
-    # REQUIRED: exact human trigger paragraph(s) from the document
+    # REQUIRED: exact or very close trigger paragraph(s) for this phase from the document.
     source_trigger_text: |-
-      Paste the exact trigger paragraph(s) for this phase here.
+      Paste the exact readiness trigger statement for this phase here.
 
-    # REQUIRED: indicators that appear in the trigger logic
+    # REQUIRED: indicators that appear in the trigger logic.
+    # Keep these as compact as possible while still encoding all semantics.
     indicators:
-      - id: "INDICATOR_1_ID"   # REQUIRED: unique within this trigger set
-        label: "Short label for UIs and auto-text"
-        description: "Longer human description of what is being measured."
+      - id: "INDICATOR_1_ID"     # REQUIRED: unique within this trigger set
+        data_source_id: "DATA_SOURCE_ID"      # REQUIRED: link to data_sources entry
+        spatial_condition_id: "SPATIAL_CONDITION_ID"   # REQUIRED where location is specified
+        variable: "river_stage"               # REQUIRED: name used in the data system
+        metric_type: "value"                  # REQUIRED: value | probability | boolean | category | index | manual
+        unit: "m"                             # REQUIRED for numeric metrics; null/empty for boolean/category
 
-        # OPTIONAL: semantic classification
-        # (helps with auto-text like “hazard indicator” vs “impact indicator”)
-        role: "hazard"         # "hazard" | "exposure" | "vulnerability" | "impact" | "operational"
-
-        # OPTIONAL: reference to the data source providing this indicator
-        # (see `data_sources` extension)
-        data_source_id: "DATA_SOURCE_ID"
-
-        # OPTIONAL BUT IMPORTANT: where this indicator is measured / applies.
-        # For gauge- or grid-based indicators, point this at a spatial_conditions
-        # entry of feature_type: "station" or "grid_cell".
-        spatial_condition_id: "SPATIAL_CONDITION_ID"
-
-        # OPTIONAL: name of the variable in the data system (API / column name / etc.)
-        variable: "river_stage"   # e.g. river_stage, discharge, q2_return_period
-
-        # REQUIRED: how to interpret the metric
-        metric_type: "value"      # "value" | "probability" | "boolean" | "category"
-        unit: "m"                 # null for boolean / non-numeric
-
-        # OPTIONAL: override phase-level lead time if needed
-        lead_time:
-          min_hours: 48
-          max_hours: 48
-
-        # OPTIONAL: aggregation rules for data cubes (forecasts, grids, etc.)
-        aggregation:
-          temporal: "max"         # "max" | "min" | "mean" | "sum" | "any" | "all" | "none"
-          spatial: "point"        # "point" | "basin_average" | "district_total" | "none"
+        # OPTIONAL: override phase-level lead time if this indicator uses a different horizon.
+        # Omit if same as the phase.
+        # lead_time:
+        #   min_hours: 48
+        #   max_hours: 48
 
         # REQUIRED: the threshold condition for this indicator
         condition:
-          operator: ">="          # ">= | > | <= | < | == | != | in | not_in"
-          value: 11.8             # number or string or list, depending on metric_type
+          operator: ">="                      # >= | > | <= | < | == | != | in | not_in
+          value: 11.8                         # number or string or list, depending on metric_type
 
-          # OPTIONAL: extra semantics so a machine can reproduce phrases like
-          # “1 m above the danger level” instead of just “11.8 m”.
-          reference_value_type: "absolute"    # "absolute" | "relative_to_reference"
-          reference_name: "danger_level"      # e.g. "danger_level", "warning_level"
+          # OPTIONAL: encode semantics like “1 m above danger level”.
+          reference_value_type: "relative_to_reference"  # absolute | relative_to_reference
+          reference_name: "danger_level"      # e.g. danger_level, warning_level
           reference_offset:
             value: 1.0                        # e.g. 1.0 m above reference
             unit: "m"
 
+          # OPTIONAL (see SCHEMA_EXTENSIONS.md):
+          # spatial_condition:                 # for "CDI >= 70 in at least 3 districts" cases
+          #   metric: "admin_units_meeting_threshold"
+          #   admin_level: "district"
+          #   operator: ">="
+          #   value: 3
+
     # REQUIRED: machine-readable logic over indicator IDs.
-    # This is the *minimal* thing an engine needs to know how to fire the trigger.
     trigger_logic:
       boolean_expression: "INDICATOR_1_ID AND INDICATOR_2_ID"
       # The boolean_expression is a simple infix expression over indicator IDs
-      # using operators AND, OR, NOT and parentheses.
+      # using AND, OR, NOT and parentheses.
+      # Example: "i_glofas_karnali OR (i_nwp_babai AND i_stagegap_babai)"
 
-      # OPTIONAL: free-text explanation of the logic. This can be re-generated
-      # from boolean_expression + indicator labels, but keeping it helps traceability.
-      explanation: >-
-        Short free-text explanation of how indicators combine for this phase.
-
-    # OPTIONAL: stop / deactivation logic for the phase once it has fired
-    stop_logic:
-      boolean_expression: "NOT INDICATOR_3_ID"
-      explanation: >-
-        Optional logic that defines when actions linked to this phase should be
-        paused or cancelled (e.g. “evacuation stops once gauges fall below
-        danger level or start to drop”).
+    # OPTIONAL: stop / deactivation logic for the phase once it has fired.
+    # Useful for things like "evacuation only when rivers are above danger level and rising".
+    # stop_logic:
+    #   boolean_expression: "NOT INDICATOR_3_ID"

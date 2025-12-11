@@ -1,4 +1,4 @@
-# Schema extensions for anticipatory action triggers (v0.1)
+# Schema extensions for anticipatory action triggers (v0.1.2)
 
 This repository defines a small **core schema** for encoding anticipatory action triggers in a simple, human-readable format (see `core-template.yaml`).
 
@@ -8,11 +8,11 @@ You do **not** have to use all of these. Start with the core and only add fields
 
 ---
 
-## 1. Extra source and metadata fields
+## 1. Extra source fields
 
-These can be added under the existing `source` and `metadata` blocks.
+These extend the existing `source` block.
 
-### 1.1 Source
+### 1.1 Original document and languages
 
 ```yaml
 source:
@@ -25,48 +25,28 @@ source:
     - "fr"
 ```
 
-### 1.2 Metadata: organisations and systems
+### 1.2 Scheme / network detail (optional refinement)
+
+The core uses a single string `aa_scheme` (e.g. `"RCRC_DREF"`, `"CERF_AA"`, `"START_READY"`, `"WAHAFA"`, `"GOV_AA"`, `"OTHER"`). If you need more nuance without adding much bulk, you can use a small dictionary:
 
 ```yaml
-metadata:
-  participating_orgs:
-    - "WFP"
-    - "FAO"
-    - "Welthungerhilfe"
-
-  # Financing or risk financing instruments that this trigger set unlocks.
-  funding_instruments:
-    - name: "CERF Anticipatory Action Window"
-      provider: "OCHA"
-      notes: "Funds released when activation trigger is met."
-
-    - name: "Start Ready Risk Pool 3"
-      provider: "Start Network"
-      notes: "Contingency plan implemented by local NGOs."
-
-    - name: "WAHAFA"
-      provider: "Welthungerhilfe"
-      notes: "Facility financing locally led AAPs."
-
-  # Systems this trigger set is embedded in.
-  linked_systems:
-    - "National social protection system"
-    - "National DRM law"
-    - "Start Ready risk pool"
-
-  # Local custodians responsible for maintaining the plan.
-  custodians:
-    - "Local NGO X"
-    - "District AA Working Group"
+source:
+  aa_scheme: "RCRC_DREF"
+  aa_scheme_detail:
+    owner: "IFRC"
+    instrument: "DREF"
+    code: "sEAP2024NP01"
 ```
 
-These fields are useful for plans from CERF, Start Network, FAO/WFP, WHH and other NGOs where the trigger is explicitly tied to a financing mechanism or national system.
+All fields here are optional. If you want the shortest possible files, just keep the single `aa_scheme` string.
 
 ## 2. Data and indicator extensions
 
 The core schema keeps indicators inline within each phase. If you want to re-use indicators or define data sources explicitly, you can add the following.
 
 ### 2.1 Data sources
+
+The core template already shows the minimal structure:
 
 ```yaml
 data_sources:
@@ -75,22 +55,27 @@ data_sources:
     provider: "ECMWF"
     type: "model"      # observation | forecast | index | model | manual | other
     url: "https://www.globalfloods.eu/"
-    notes: "Used for river discharge and return period thresholds."
+```
 
-  - id: "CDI_PAK"
-    name: "Combined Drought Index for Pakistan"
-    provider: "Pakistan Meteorological Department"
-    type: "index"
-    url: "https://example.org/pmd/cdi"
-    notes: "Composite of SPI, VHI, soil moisture, ENSO, etc."
+If you want, you can also record default units or conventions associated with this source:
 
-    # OPTIONAL: default units or conventions for variables from this source
+```yaml
+data_sources:
+  - id: "DHM_GAUGES"
+    name: "DHM real-time river gauge network"
+    provider: "Department of Hydrology and Meteorology, Nepal"
+    type: "observation"
+    url: "https://example.org/dhm/gauges"
     default_units:
       river_stage: "m"
       discharge: "m3/s"
 ```
 
+These extra fields are optional; they do not affect trigger firing logic, but can help when generating or checking human-readable text.
+
 ### 2.2 Indicator catalogue
+
+For some plans (e.g. multi-basin flood protocols, multi-hazard frameworks), the same indicator is used in several phases. You can define it once in an `indicator_catalog`, then reuse it with `use_indicator` inside phases.
 
 ```yaml
 indicator_catalog:
@@ -98,13 +83,6 @@ indicator_catalog:
     description: "Combined Drought Index (0–100%)"
     data_source_id: "CDI_PAK"
     metric_type: "index"     # value, probability, index, category, boolean, manual
-    unit: "%"
-    notes: "See original protocol for weighting."
-
-  - id: "RIVER_Q_10YR_PROB"
-    description: "Probability of ≥10-year return-period flood in target reach"
-    data_source_id: "GLOFAS"
-    metric_type: "probability"
     unit: "%"
 ```
 
@@ -118,73 +96,40 @@ phases:
         condition:
           operator: ">="
           value: 70
-          unit: "%"
-
-      - use_indicator: "RIVER_Q_10YR_PROB"
-        condition:
-          operator: ">="
-          value: 50
-          unit: "%"
 ```
 
-### 2.3 Spatial conditions
+When using `use_indicator`, the indicator inherits fields from the catalog (data_source_id, variable, metric_type, unit, etc.), and only the threshold `condition` is specified inline.
 
-Spatial conditions are used in two complementary ways:
+This can reduce duplication and file size when the same indicators appear in many phases.
 
-1. Inline `spatial_condition` on a condition, for logic like “CDI ≥ 70% in at least 3 districts”.
-2. `spatial_condition_id` on an indicator, to link it to a concrete location (station, basin, area) defined in the top-level `spatial_conditions` catalogue.
 
-#### 2.3.1 Inline spatial_condition for “number of admin units meeting threshold”
+## 3 Spatial conditions
 
-Use this when the trigger text refers to a minimum number of admin units meeting a threshold.
+Spatial conditions are the main way to describe where indicators are measured and where a phase applies.
 
-Example:
+There are two complementary mechanisms:
+
+1. `spatial_condition_id` on an indicator, linking it to a concrete object in the top-level `spatial_conditions` catalogue (station, basin, area, grid cell).
+2. An inline `spatial_condition` inside a `condition`, for designs like "CDI ≥ 70 in at least 3 districts".
+
+### 3.1 Top-level spatial_conditions catalogue
+
+Minimal example for a river gauge:
 
 ```yaml
-      - use_indicator: "CDI"
-        condition:
-          operator: ">="
-          value: 70
-          unit: "%"
-        spatial_condition:
-          metric: "admin_units_meeting_threshold"
-          admin_level: "district"   # e.g. "district", "province", "municipality", "basin"
-          operator: ">="
-          value: 3                  # "at least 3 districts meet the CDI threshold"
+spatial_conditions:
+  - id: "station_karnali_chisapani"
+    label: "Karnali River at Chisapani gauge"
+    feature_type: "station"         # station | basin | area | grid_cell | other
+    station:
+      provider: "DHM"
+      station_name: "Chisapani"
+      station_type: "river_gauge"
+      river_name: "Karnali"
+      country: "NP"
 ```
 
-Semantics: evaluate condition per admin unit at admin_level, count how many units meet it, then apply spatial_condition.operator and spatial_condition.value to that count. 
-
-#### 2.3.2 Linking indicators to concrete locations using spatial_condition_id
-
-Use this when the location of measurement (e.g. a river gauge) is part of the trigger.
-
-Example indicator:
-
-```yaml
-    indicators:
-      - id: "dhm_stage_karnali_chisapani_48h"
-        label: "Karnali at Chisapani stage (48h)"
-        description: "48-hour forecast river level at Karnali–Chisapani gauge from DHM."
-        data_source_id: "DHM_BULLETIN"
-        spatial_condition_id: "station_karnali_chisapani"
-        variable: "river_stage"
-        metric_type: "value"
-        unit: "m"
-        lead_time:
-          min_hours: 48
-          max_hours: 48
-        condition:
-          operator: ">="
-          value: 11.8
-          reference_value_type: "relative_to_reference"
-          reference_name: "danger_level"
-          reference_offset:
-            value: 1.0
-            unit: "m"
-```
-
-Corresponding spatial_conditions entry:
+You can optionally add geometry and basin information when available:
 
 ```yaml
 spatial_conditions:
@@ -193,7 +138,6 @@ spatial_conditions:
     feature_type: "station"
     station:
       provider: "DHM"
-      station_code: "CHISAPANI"
       station_name: "Chisapani"
       station_type: "river_gauge"
       river_name: "Karnali"
@@ -201,66 +145,68 @@ spatial_conditions:
     geometry:
       type: "Point"
       coordinates: [80.967, 28.683]   # [lon, lat]
+    basin:
+      name: "Karnali"
+      code: "KARNALI_MAIN"
 ```
 
-Inline `spatial_condition` answers "in how many places does this hold?", while `spatial_condition_id` plus `spatial_conditions` answers "where is this measured?". Both can be used together to reconstruct full human-readable trigger statements.
+For area-based triggers, you can use feature_type `"area"` or `"basin"` and describe admin areas or polygons:
+
+```yaml
+spatial_conditions:
+  - id: "area_karnali_basin_districts"
+    label: "Target municipalities in Karnali basin"
+    feature_type: "area"
+    admin_areas:
+      - admin_level: "district"
+        name: "Kailali"
+      - admin_level: "district"
+        name: "Bardiya"
+```
+
+### 3.2 Inline spatial_condition for "number of admin units meeting threshold"
+
+Use this when the trigger text refers to a minimum number of districts, provinces, etc. meeting a threshold, for example: "CDI ≥ 70 in at least 3 districts".
+
+```yaml
+phases:
+  - phase_id: "T2"
+    indicators:
+      - use_indicator: "CDI"
+        condition:
+          operator: ">="
+          value: 70
+          spatial_condition:
+            metric: "admin_units_meeting_threshold"
+            admin_level: "district"   # e.g. district | province | municipality | basin
+            operator: ">="
+            value: 3                  # at least 3 districts meet the CDI threshold
+```
+
+Semantics: evaluate the indicator per admin unit at `admin_level`, count how many units meet the threshold, then apply `spatial_condition.operator` and `spatial_condition.value` to that count.
 
 ---
 
-## 3. Logic and governance extensions
+## 4. Logic extensions
 
-The core only requires a human-readable explanation of the trigger logic. If you want more structure, add these.
-
-### 3.1 Machine expressions for trigger and stop logic
+The core already expects phase-level `trigger_logic.boolean_expression` and optional `stop_logic boolean_expression`. If you want, you can also add an informal explanation without changing the logic:
 
 ```yaml
 phases:
   - phase_id: "T2"
     trigger_logic:
-      human_readable: >
-        Activation occurs when CDI ≥ 70 in at least three districts.
-      expression: "CDI AND CDI_admin_units"
-      expression_language: "simple_ids"
-
-    stop_logic:
-      human_readable: >
-        Stand down if CDI falls below 70 in all districts before the lead time ends.
-      expression: "NOT CDI"
-      expression_language: "simple_ids"
+      boolean_expression: "i_cdi70_3districts AND i_rain_extreme_3d"
+      explanation: "Activation when CDI ≥ 70 in at least 3 districts and extreme rainfall forecast in next 3 days."
 ```
 
-`expression_language` is intentionally vague for now; you can treat `simple_ids` as "Boolean expressions using indicator ids with AND/OR/NOT".
 
-### 3.2 Phase-level language tag
-
-If a phase's trigger text is taken from a non-English annex, you can note it:
-
-```yaml
-  - phase_id: "fase1"
-    source_trigger_language: "es"   # original trigger text in Spanish
-```
-
-### 3.3 Governance
-
-For plans where decision roles and validation bodies are clearly specified (e.g. CERF, Start Ready, FAO/WFP, WHH, EAPs aligned with national AA TWGs), you can add:
-
-```yaml
-    governance:
-      decision_role: "Anticipatory Action TWG Chair"
-      validation_body: "National AA Technical Working Group"
-      requires_government_concurrence: true
-      notes: "Local early warning committees must confirm situation on the ground."
-```
-
----
-
-## 4. Using extensions in practice
+## 5. Using extensions in practice
 
 A realistic encoding workflow could be:
 
-1. Start from `schema/core-template.yaml`
-2. Fill only the required core fields for your first few plans
-3. Add optional blocks from this document only when the plan clearly uses them (e.g. CERF or Start Ready financing, FAO CDI, explicit TWG roles)
-4. Keep the original trigger text in `source_trigger_text` for each phase so practitioners can always verify that the structured encoding matches the plan
+1. Start with the core only (top-level fields, data_sources, spatial_conditions, phases, indicators, trigger_logic).
+2. Add **only** those extensions that reduce duplication or clarify essential semantics (e.g. `indicator_catalog`, inline `spatial_condition`).
+3. Avoid recording financing, governance or organisational details here unless they directly affect the trigger logic.
 
-The aim is to keep the core small and readable, while still giving enough flexibility to cover Red Cross, UN, Start Network, NGO and locally led anticipatory action plans.
+The aim is that each YAML file remains compact, but still contains all the information needed to reproduce the trigger thresholds, locations, lead times and logical combinations from the original plan.
+
