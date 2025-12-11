@@ -1,0 +1,274 @@
+schema_version: "AA-Trigger-Core-0.1.2"
+language: "en"
+trigger_set_id: "NG_FLOODS_AAF_CERF_NHF_2025"
+name: "Nigeria – Floods AA Framework (Benue riverine + BAY flash flooding)"
+document_type: "AAF"
+
+source:
+  document_title: "Anticipatory Action Framework – Nigeria - Floods"
+  implementing_org: "OCHA Nigeria"
+  countries: ["NG"]
+  year: 2025
+  document_language: "en"
+  document_download_url: "https://fscluster.org/sites/default/files/2025-08/AAFRF_Nigeria.pdf"
+  aa_scheme: "CERF_AA"
+  section_reference: "Executive Summary; 'Triggers and Thresholds'; 'Activation protocol – riverine flooding'; 'Monitoring protocol – flash flooding'; 'Geographical Focus'."
+  accessed_date: "2025-12-11"
+  original_document_type: "Anticipatory Action Framework"
+
+data_sources:
+  - id: "GLOFAS"
+    name: "Global Flood Awareness System"
+    provider: "ECMWF"
+    type: "forecast"
+    url: "https://global-flood.emergency.copernicus.eu"
+  - id: "GOOGLE_FLOODHUB"
+    name: "Google Flood Hub river discharge forecasts"
+    provider: "Google"
+    type: "forecast"
+    url: "https://sites.research.google/floods/"
+  - id: "FLOODSCAN_SFED"
+    name: "FloodScan Standard Flood Extent Depiction (SFED)"
+    provider: "AER"
+    type: "observation"
+    url: "https://aer.powerserve.net/weather-risk-management/floodscan-near-real-time-and-historical-flood-mapping"
+  - id: "WORLDPOP_2020"
+    name: "WorldPop 2020 UN-adjusted population"
+    provider: "WorldPop"
+    type: "other"
+    url: ""
+  - id: "CHD_FLOOD_EXPOSURE"
+    name: "Flood exposure (FloodScan SFED overlaid with WorldPop 2020)"
+    provider: "OCHA Centre for Humanitarian Data"
+    type: "index"
+    url: ""
+
+spatial_conditions:
+  - id: "area_benue_adamawa_7lgas"
+    label: "Seven LGAs along the Benue River in Adamawa (Fufore, Yola South, Yola North, Girei, Demsa, Numan, Lamurde)"
+    feature_type: "area"
+    admin_areas:
+      - admin_level: "LGA"
+        name: "Fufore"
+      - admin_level: "LGA"
+        name: "Yola South"
+      - admin_level: "LGA"
+        name: "Yola North"
+      - admin_level: "LGA"
+        name: "Girei"
+      - admin_level: "LGA"
+        name: "Demsa"
+      - admin_level: "LGA"
+        name: "Numan"
+      - admin_level: "LGA"
+        name: "Lamurde"
+  - id: "station_wuroboki_g5004"
+    label: "Wuroboki (G5004) – Benue River reach"
+    feature_type: "station"
+    station:
+      provider: "GLOFAS"
+      station_name: "Wuroboki"
+      station_type: "river_gauge"
+      country: "NG"
+  - id: "station_kangli_hybas_1120842550"
+    label: "Kangli (hybas_1120842550) – Benue River reach"
+    feature_type: "station"
+    station:
+      provider: "GOOGLE_FLOODHUB"
+      station_name: "Kangli"
+      station_type: "river_gauge"
+      country: "NG"
+  - id: "area_bade"
+    label: "Bade LGA"
+    feature_type: "area"
+    admin_areas:
+      - admin_level: "LGA"
+        name: "Bade"
+  - id: "area_bama"
+    label: "Bama LGA"
+    feature_type: "area"
+    admin_areas:
+      - admin_level: "LGA"
+        name: "Bama"
+  - id: "area_karasuwa"
+    label: "Karasuwa LGA"
+    feature_type: "area"
+    admin_areas:
+      - admin_level: "LGA"
+        name: "Karasuwa"
+  - id: "area_madagali"
+    label: "Madagali LGA"
+    feature_type: "area"
+    admin_areas:
+      - admin_level: "LGA"
+        name: "Madagali"
+  - id: "area_maiduguri"
+    label: "Maiduguri LGA"
+    feature_type: "area"
+    admin_areas:
+      - admin_level: "LGA"
+        name: "Maiduguri"
+  - id: "area_ngala"
+    label: "Ngala LGA"
+    feature_type: "area"
+    admin_areas:
+      - admin_level: "LGA"
+        name: "Ngala"
+indicator_catalog:
+  - id: "flash_flood_exposure_population"
+    data_source_id: "CHD_FLOOD_EXPOSURE"
+    variable: "flood_exposed_population"
+    metric_type: "value"
+    unit: "people"
+
+phases:
+  - phase_id: "riverine_activation"
+    phase_name: "Riverine flooding trigger – Benue River, Adamawa"
+    phase_type: "activation"
+    sequence: 1
+    lead_time:
+      min_hours: 336
+      max_hours: 600
+      min_days: 14
+      max_days: 25
+    applies_to_spatial_condition_ids:
+      - "area_benue_adamawa_7lgas"
+    source_trigger_text: |-
+      The financing and activities in this framework for riverine flooding (Benue River) will be triggered if GloFAS predicts a discharge of at least 3,132 cubic meters per second at Wuroboki within the next 5 days, or if the Google flood forecast predicts a discharge of at least 1,195 cubic meters per second at Kangli at any point. The table below summarizes these thresholds.
+
+      GloFAS Google
+      Station Wuroboki (G5004) Kangli (hybas_1120842550)
+      Threshold 3,132 m3/s 1,195 m3/s
+
+      The GloFAS reanalysis may also be used for triggering, which is analogous to a forecast with lead time=0. The maximum lead time for GloFAS (5 days) corresponds to value 4 days after the forecast issue date (i.e., the forecast for "today" is day 1 of lead time).
+
+      Any lead time day of the Google forecast can be used. Since the Google forecast is issued with 1–2 days lag, the effective lead time of the day 8 lead time (the maximum one in the forecast) is 6–7 days.
+
+      The combined use of these two sources, grounded by national historical observational and impact data, offers the most optimal accuracy and longer lead times: between 14 to 25 days historically. It also offers redundancy to mitigate against the disruption of either data source. The overall return period is 1-in-4.5 years.
+    indicators:
+      - id: "i_glofas_wuroboki_q3132_5d"
+        data_source_id: "GLOFAS"
+        spatial_condition_id: "station_wuroboki_g5004"
+        variable: "discharge"
+        metric_type: "value"
+        unit: "m3/s"
+        lead_time:
+          min_hours: 0
+          max_hours: 120
+          min_days: 0
+          max_days: 5
+        condition:
+          operator: ">="
+          value: 3132
+      - id: "i_google_kangli_q1195_anylead"
+        data_source_id: "GOOGLE_FLOODHUB"
+        spatial_condition_id: "station_kangli_hybas_1120842550"
+        variable: "discharge"
+        metric_type: "value"
+        unit: "m3/s"
+        lead_time:
+          min_hours: 0
+          max_hours: 192
+          min_days: 0
+          max_days: 8
+        condition:
+          operator: ">="
+          value: 1195
+    trigger_logic:
+      boolean_expression: "i_glofas_wuroboki_q3132_5d OR i_google_kangli_q1195_anylead"
+  - phase_id: "flash_flood_observational_trigger"
+    phase_name: "Flash flooding observational trigger – BAY states"
+    phase_type: "activation"
+    sequence: 2
+    lead_time:
+      min_hours: 0
+      max_hours: 72
+      min_days: 0
+      max_days: 3
+    applies_to_spatial_condition_ids:
+      - "area_bade"
+      - "area_bama"
+      - "area_karasuwa"
+      - "area_madagali"
+      - "area_maiduguri"
+      - "area_ngala"
+    source_trigger_text: |-
+      This framework will also monitor flash flooding to inform reprogramming options for the NHF and other partner-specific early/rapid response mobilization. It will be triggered if the flood exposure (calculated by overlaying the satellite flood extent with the population distribution) for an LGA exceeds its corresponding threshold, listed below:
+
+      - Bade: 32,124 people
+      - Bama: 12,334 people
+      - Karasuwa: 4,296 people
+      - Madagali: 6,856 people
+      - Maiduguri: 27,424 people
+      - Ngala: 126,086 people
+
+      Note that due to biases in the flood extent data between geographies, these values do not correspond directly to the number of people impacted and should only be compared to other values from the same LGA. Furthermore, the levels have been set to give an equal probability of triggering in each LGA, with an overall return period of approximately 4 years.
+    indicators:
+      - use_indicator: "flash_flood_exposure_population"
+        id: "i_flash_bade_exposure"
+        spatial_condition_id: "area_bade"
+        lead_time:
+          min_hours: 0
+          max_hours: 72
+          min_days: 0
+          max_days: 3
+        condition:
+          operator: ">="
+          value: 32124
+      - use_indicator: "flash_flood_exposure_population"
+        id: "i_flash_bama_exposure"
+        spatial_condition_id: "area_bama"
+        lead_time:
+          min_hours: 0
+          max_hours: 72
+          min_days: 0
+          max_days: 3
+        condition:
+          operator: ">="
+          value: 12334
+      - use_indicator: "flash_flood_exposure_population"
+        id: "i_flash_karasuwa_exposure"
+        spatial_condition_id: "area_karasuwa"
+        lead_time:
+          min_hours: 0
+          max_hours: 72
+          min_days: 0
+          max_days: 3
+        condition:
+          operator: ">="
+          value: 4296
+      - use_indicator: "flash_flood_exposure_population"
+        id: "i_flash_madagali_exposure"
+        spatial_condition_id: "area_madagali"
+        lead_time:
+          min_hours: 0
+          max_hours: 72
+          min_days: 0
+          max_days: 3
+        condition:
+          operator: ">="
+          value: 6856
+      - use_indicator: "flash_flood_exposure_population"
+        id: "i_flash_maiduguri_exposure"
+        spatial_condition_id: "area_maiduguri"
+        lead_time:
+          min_hours: 0
+          max_hours: 72
+          min_days: 0
+          max_days: 3
+        condition:
+          operator: ">="
+          value: 27424
+      - use_indicator: "flash_flood_exposure_population"
+        id: "i_flash_ngala_exposure"
+        spatial_condition_id: "area_ngala"
+        lead_time:
+          min_hours: 0
+          max_hours: 72
+          min_days: 0
+          max_days: 3
+        condition:
+          operator: ">="
+          value: 126086
+    trigger_logic:
+      boolean_expression: "i_flash_bade_exposure OR i_flash_bama_exposure OR i_flash_karasuwa_exposure OR i_flash_madagali_exposure OR i_flash_maiduguri_exposure OR i_flash_ngala_exposure"

@@ -1,0 +1,281 @@
+schema_version: "AA-Trigger-Core-0.1.2"
+language: "en"
+trigger_set_id: "MOZ_TC_CABODELGADO_WAHAFA_2025"
+name: "Tropical Cyclone – Cabo Delgado, Mozambique (ADRA/SEPPA WAHAFA)"
+document_type: "AAP"
+
+source:
+  document_title: "Anticipatory Action Plan (AAP) for Tropical Cyclones Cabo Delgado Mozambique"
+  implementing_org: "ADRA Mozambique and Fundação SEPPA"
+  countries: ["MZ"]
+  year: 2025
+  document_language: "en"
+  document_download_url: ""
+  aa_scheme: "WAHAFA"
+  section_reference: "Summary table p.3; Section 3 Trigger Model pp.10–17; Stop mechanism section 3.5; Operationalization section 5.4. Schema fields per AA-Trigger-Core-0.1.2 template and schema extensions."
+  accessed_date: "2025-12-11"
+  original_document_type: "Anticipatory Action Plan (AAP) for Tropical Cyclones"
+
+data_sources:
+  - id: "INGD_ALERTS"
+    name: "National Disaster Management Institute (INGD) cyclone alerts (blue/yellow/red)"
+    provider: "INGD"
+    type: "other"
+    url: ""
+  - id: "INAM_FORECASTS"
+    name: "National Institute of Meteorology (INAM) tropical cyclone forecasts and analyses "
+    provider: "INAM"
+    type: "forecast"
+    url: ""
+  - id: "CYCLOCANE_ZOOMEARTH"
+    name: "Cyclocane and Zoom Earth cyclone track and forecast visualizations"
+    provider: "Multiple (Tropical Storm Risk, Pacific Disaster Center, ECMWF, others)"
+    type: "model"
+    url: "https://www.cyclocane.com"
+  - id: "GROUND_REPORTS"
+    name: "Ground observations from Emergency Operations Centres and field teams in Metuge and Montepuez "
+    provider: "ADRA Mozambique, Fundação SEPPA, local authorities"
+    type: "manual"
+    url: ""
+
+spatial_conditions:
+  - id: "area_cabo_delgado_metuge_montepuez"
+    label: "Target communities in Metuge (Miquindane) and Montepuez (Napai, Namanhumbir, Mararanje) districts, Cabo Delgado"
+    feature_type: "area"
+    admin_areas:
+      - admin_level: "province"
+        name: "Cabo Delgado"
+      - admin_level: "district"
+        name: "Metuge"
+      - admin_level: "district"
+        name: "Montepuez"
+
+phases:
+  - phase_id: "TC_T1_ON_YOUR_MARKS"
+    phase_name: "Stage 1 – On your marks (blue advisory)"
+    phase_type: "readiness"
+    sequence: 1
+    lead_time:
+      min_hours: 120
+      max_hours: 168
+      min_days: 5
+      max_days: 7
+    applies_to_spatial_condition_ids:
+      - "area_cabo_delgado_metuge_montepuez"
+    source_trigger_text: |-
+      Stage 1 – ‘On your marks’
+      INGD issue a BLUE advisory when a Tropical Disturbance (TD) is detected in the ocean, with a potential to develop into a cyclone. The public is informed to stay alert and prepared for possible worsening conditions. Blue advisories are also issued when a Tropical Cyclone (TC) is more than 500 km offshore within the Mozambique Channel but may affect the coast in the coming days. The lead-time of the advisory will vary depending on formation of the system. However, on average from the past cyclones, there is typically a lead-time of 5 to 7 days between the advisory and landfall.
+      Trigger statement: INGD issue a BLUE cyclone advisory with an estimated minimum 5-day lead time stating that a Tropical Disturbance has potential to develop into a Tropical Cyclone OR when a cyclone is more than 500 km from the coast within the Mozambique Channel.
+    indicators:
+      - id: "i_t1_blue_alert"
+        data_source_id: "INGD_ALERTS"
+        variable: "alert_level"
+        metric_type: "category"
+        unit: null
+        condition:
+          operator: "=="
+          value: "BLUE"
+      - id: "i_t1_td_potential"
+        data_source_id: "INAM_FORECASTS"
+        variable: "system_type"
+        metric_type: "category"
+        unit: null
+        condition:
+          operator: "=="
+          value: "tropical_disturbance_with_potential_to_develop_into_cyclone"
+      - id: "i_t1_tc_far_500km"
+        data_source_id: "INAM_FORECASTS"
+        variable: "distance_to_mozambique_coast_km"
+        metric_type: "value"
+        unit: "km"
+        condition:
+          operator: ">="
+          value: 500
+      - id: "i_t1_leadtime_min5d"
+        data_source_id: "INAM_FORECASTS"
+        variable: "lead_time_to_landfall_days"
+        metric_type: "value"
+        unit: "days"
+        condition:
+          operator: ">="
+          value: 5
+    trigger_logic:
+      boolean_expression: "i_t1_blue_alert AND i_t1_leadtime_min5d AND (i_t1_td_potential OR i_t1_tc_far_500km)"
+
+  - phase_id: "TC_T2_GET_SET"
+    phase_name: "Stage 2 – Get Set (yellow warning)"
+    phase_type: "scale_up"
+    sequence: 2
+    lead_time:
+      min_hours: 72
+      max_hours: 72
+      min_days: 3
+      max_days: 3
+    applies_to_spatial_condition_ids:
+      - "area_cabo_delgado_metuge_montepuez"
+    source_trigger_text: |-
+      Stage 2 – ‘Get Set’
+      INGD issue a YELLOW warning or ‘watch’, when a Tropical Cyclone (TC) is 250–500 km offshore and is expected to make landfall Mozambique within 72 hours with windspeeds of greater than 150 km/h (Category 1) and / or less than 980 hPa of central pressure. Alerts are issued to at-risk regions following the forecasted trajectory of the TC, advising people to start taking protective measures.
+      Trigger statement: INGD issue a yellow cyclone warning stating that a Tropical Cyclone is 250–500 km from the coast and expected to impact Mozambique within 72 hours with windspeeds of greater than 150 km/h (Category 1) and / or less than 980 hPa of central pressure. 
+    indicators:
+      - id: "i_t2_yellow_alert"
+        data_source_id: "INGD_ALERTS"
+        variable: "alert_level"
+        metric_type: "category"
+        unit: null
+        condition:
+          operator: "=="
+          value: "YELLOW"
+      - id: "i_t2_distance_ge_250km"
+        data_source_id: "INAM_FORECASTS"
+        variable: "distance_to_mozambique_coast_km"
+        metric_type: "value"
+        unit: "km"
+        condition:
+          operator: ">="
+          value: 250
+      - id: "i_t2_distance_le_500km"
+        data_source_id: "INAM_FORECASTS"
+        variable: "distance_to_mozambique_coast_km"
+        metric_type: "value"
+        unit: "km"
+        condition:
+          operator: "<="
+          value: 500
+      - id: "i_t2_leadtime_le_72h"
+        data_source_id: "INAM_FORECASTS"
+        variable: "lead_time_to_landfall_hours"
+        metric_type: "value"
+        unit: "h"
+        condition:
+          operator: "<="
+          value: 72
+      - id: "i_t2_wind_ge_150"
+        data_source_id: "INAM_FORECASTS"
+        variable: "max_sustained_wind_speed"
+        metric_type: "value"
+        unit: "km/h"
+        condition:
+          operator: ">="
+          value: 150
+      - id: "i_t2_pressure_lt_980"
+        data_source_id: "INAM_FORECASTS"
+        variable: "central_pressure"
+        metric_type: "value"
+        unit: "hPa"
+        condition:
+          operator: "<"
+          value: 980
+    trigger_logic:
+      boolean_expression: "i_t2_yellow_alert AND i_t2_distance_ge_250km AND i_t2_distance_le_500km AND i_t2_leadtime_le_72h AND (i_t2_wind_ge_150 OR i_t2_pressure_lt_980)"
+
+  - phase_id: "TC_T3_GO"
+    phase_name: "Stage 3 – Go (red warning, activation of anticipatory actions)"
+    phase_type: "activation"
+    sequence: 3
+    lead_time:
+      min_hours: 48
+      max_hours: 48
+      min_days: 2
+      max_days: 2
+    applies_to_spatial_condition_ids:
+      - "area_cabo_delgado_metuge_montepuez"
+    source_trigger_text: |-
+      Stage 3 – ‘Go’
+      INGD issue a RED warning when a Tropical Cyclone 250 km offshore is expected to make landfall within 48 hours. This also provides information on the observed wind speed and a forecast trajectory including forecast wind speeds and the rainfall. At this stage, anticipatory humanitarian action is triggered in the target zones with the designed AAPs.
+      Trigger statement: INGD issue a red cyclone watch warning stating that a Tropical Cyclone is 250 km from the coast and expected to impact Mozambique within 48 hours with windspeeds of greater than 150 km/h (Category 1) and / or less than 980 hPa of central pressure. 
+      Stop mechanism (summary):
+      Updated forecast information – trajectory changes: If INAM, based on Cyclocane, Zoom Earth, or other models, identifies a significant shift in the cyclone's trajectory away from the target districts of Metuge and Montepuez, anticipatory actions will be halted. Reduction in intensity: If forecasts indicate a decrease in cyclone intensity below Category 1 (winds < 150 km/h or central pressure > 980 hPa), stopping anticipatory actions will be considered. Rapid cyclone intensification: If the cyclone's intensity escalates to levels that pose risks to responders or communities (e.g., pressure < 945 hPa), activities will be suspended. Emergent ground truth data: If local data from the Centre of Emergency Operations or field officers contradicts forecasted risks, anticipatory actions may be paused for reassessment. Access constraints due to pre-emptive flooding: If flash or river flooding occurs, impeding access to vulnerable areas or rendering planned actions unfeasible, anticipatory activities may need to be halted.
+    indicators:
+      - id: "i_t3_red_alert"
+        data_source_id: "INGD_ALERTS"
+        variable: "alert_level"
+        metric_type: "category"
+        unit: null
+        condition:
+          operator: "=="
+          value: "RED"
+      - id: "i_t3_distance_le_250km"
+        data_source_id: "INAM_FORECASTS"
+        variable: "distance_to_mozambique_coast_km"
+        metric_type: "value"
+        unit: "km"
+        condition:
+          operator: "<="
+          value: 250
+      - id: "i_t3_leadtime_le_48h"
+        data_source_id: "INAM_FORECASTS"
+        variable: "lead_time_to_landfall_hours"
+        metric_type: "value"
+        unit: "h"
+        condition:
+          operator: "<="
+          value: 48
+      - id: "i_t3_wind_ge_150"
+        data_source_id: "INAM_FORECASTS"
+        variable: "max_sustained_wind_speed"
+        metric_type: "value"
+        unit: "km/h"
+        condition:
+          operator: ">="
+          value: 150
+      - id: "i_t3_pressure_lt_980"
+        data_source_id: "INAM_FORECASTS"
+        variable: "central_pressure"
+        metric_type: "value"
+        unit: "hPa"
+        condition:
+          operator: "<"
+          value: 980
+      - id: "i_stop_traj_away"
+        data_source_id: "CYCLOCANE_ZOOMEARTH"
+        variable: "trajectory_shifts_away_from_target_districts"
+        metric_type: "manual"
+        unit: null
+        condition:
+          operator: "=="
+          value: true
+      - id: "i_stop_wind_below_150"
+        data_source_id: "INAM_FORECASTS"
+        variable: "max_sustained_wind_speed"
+        metric_type: "value"
+        unit: "km/h"
+        condition:
+          operator: "<"
+          value: 150
+      - id: "i_stop_pressure_above_980"
+        data_source_id: "INAM_FORECASTS"
+        variable: "central_pressure"
+        metric_type: "value"
+        unit: "hPa"
+        condition:
+          operator: ">"
+          value: 980
+      - id: "i_stop_pressure_below_945"
+        data_source_id: "INAM_FORECASTS"
+        variable: "central_pressure"
+        metric_type: "value"
+        unit: "hPa"
+        condition:
+          operator: "<"
+          value: 945
+      - id: "i_stop_groundtruth_contradiction"
+        data_source_id: "GROUND_REPORTS"
+        variable: "ground_truth_contradicts_forecast_risk"
+        metric_type: "manual"
+        unit: null
+        condition:
+          operator: "=="
+          value: true
+      - id: "i_stop_access_constraints_flooding"
+        data_source_id: "GROUND_REPORTS"
+        variable: "access_constraints_due_to_preemptive_flooding"
+        metric_type: "manual"
+        unit: null
+        condition:
+          operator: "=="
+          value: true
+    trigger_logic:
+      boolean_expression: "i_t3_red_alert AND i_t3_distance_le_250km AND i_t3_leadtime_le_48h AND (i_t3_wind_ge_150 OR i_t3_pressure_lt_980)"
+    stop_logic:
+      boolean_expression: "i_stop_traj_away OR i_stop_wind_below_150 OR i_stop_pressure_above_980 OR i_stop_pressure_below_945 OR i_stop_groundtruth_contradiction OR i_stop_access_constraints_flooding"
