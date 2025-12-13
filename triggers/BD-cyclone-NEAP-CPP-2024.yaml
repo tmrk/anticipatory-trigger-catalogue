@@ -1,0 +1,752 @@
+# Working draft: encoded from the source plan and currently being verified.
+# Please treat as provisional.
+
+schema_version: "AA-Trigger-Core-0.1.2"
+language: "en"
+trigger_set_id: "BD_NEAP_CYCLONE_2024_TRIGGERS"
+name: "Bangladesh National EAP for Cyclone (June 2024) – Trigger decision matrices (wind, storm surge, rainfall)"
+document_type: "EAP"
+source:
+  document_title: "National Early Action Protocol for Cyclone in Bangladesh"
+  implementing_org: "Cyclone Preparedness Programme (CPP), Bangladesh"
+  countries: ["BD"]
+  year: 2024
+  document_language: "en"
+  document_download_url: "https://www.anticipation-hub.org/Documents/EAPs/National_EAP_Cyclone_Bangladesh.pdf"
+  aa_scheme: "GOV_AA"
+  section_reference: "Section 4 (Triggers and Threshold Setting) and Section 6.1 (Trigger)."
+  accessed_date: "2025-12-13"
+  original_document_type: "National Early Action Protocol (NEAP)"
+data_sources:
+  - id: "BMD_CYCLONE_FORECAST"
+    name: "BMD cyclone forecast / Special Weather Bulletin (wind at landfall guidance)"
+    provider: "Bangladesh Meteorological Department (BMD)"
+    type: "forecast"
+    url: ""
+  - id: "BMD_MRI_STORM_SURGE"
+    name: "BMD MRI Storm Surge Model forecast (storm surge height/inundation guidance)"
+    provider: "Bangladesh Meteorological Department (BMD) / MRI Storm Surge Model"
+    type: "model"
+    url: ""
+  - id: "BMD_RAINFALL_FORECAST"
+    name: "BMD rainfall forecast guidance (cyclone-associated accumulated rainfall)"
+    provider: "Bangladesh Meteorological Department (BMD)"
+    type: "forecast"
+    url: ""
+spatial_conditions:
+  - id: "area_bd_coastal_zone"
+    label: "Bangladesh coastal zone (cyclone-prone coastal areas)"
+    feature_type: "area"
+  - id: "area_bd_eastern_zone"
+    label: "Eastern region of Bangladesh (heavy rainfall / flash flood & landslide trigger area)"
+    feature_type: "area"
+phases:
+  - phase_id: "p1_regular_monitoring"
+    phase_name: "Regular monitoring"
+    phase_type: "readiness"
+    sequence: 1
+    lead_time:
+      min_hours: 72
+      max_hours: null
+      min_days: null
+      max_days: null
+    applies_to_spatial_condition_ids:
+      - "area_bd_coastal_zone"
+    source_trigger_text: |-
+      Color Code Actions on likelihood of impacts: Regular monitoring (wind: 1, 2; storm surge: 1; rainfall: 1). Trigger will be activated if any one of the components (wind, storm surge, heavy rainfall) reaches its trigger threshold.
+    indicators:
+      - id: "p1_wind_72_120_ge62"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 72
+          max_hours: 120
+        condition:
+          operator: ">="
+          value: 62
+      - id: "p1_wind_72_120_lt89"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 72
+          max_hours: 120
+        condition:
+          operator: "<"
+          value: 89
+      - id: "p1_wind_gt120_ge62"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 120
+          max_hours: null
+        condition:
+          operator: ">="
+          value: 62
+      - id: "p1_wind_gt120_lt89"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 120
+          max_hours: null
+        condition:
+          operator: "<"
+          value: 89
+      - id: "p1_surge_gt120_lt15"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 120
+          max_hours: null
+        condition:
+          operator: "<"
+          value: 1.5
+      - id: "p1_rain_7_10d_lt150"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 7
+          max_days: 10
+        condition:
+          operator: "<"
+          value: 150
+    trigger_logic:
+      boolean_expression: "((p1_wind_72_120_ge62 AND p1_wind_72_120_lt89) OR (p1_wind_gt120_ge62 AND p1_wind_gt120_lt89) OR p1_surge_gt120_lt15 OR p1_rain_7_10d_lt150)"
+  - phase_id: "p2_community_readiness"
+    phase_name: "Community readiness"
+    phase_type: "readiness"
+    sequence: 2
+    lead_time:
+      min_hours: 72
+      max_hours: null
+      min_days: null
+      max_days: null
+    applies_to_spatial_condition_ids:
+      - "area_bd_coastal_zone"
+    source_trigger_text: |-
+      Color Code Actions on likelihood of impacts: Community Readiness (wind: 3, 4; storm surge: 2; rainfall: 2). Trigger will be activated if any one of the components (wind, storm surge, heavy rainfall) reaches its trigger threshold.
+    indicators:
+      - id: "p2_wind_72_120_ge89"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 72
+          max_hours: 120
+        condition:
+          operator: ">="
+          value: 89
+      - id: "p2_wind_72_120_lt118"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 72
+          max_hours: 120
+        condition:
+          operator: "<"
+          value: 118
+      - id: "p2_wind_gt120_ge89"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 120
+          max_hours: null
+        condition:
+          operator: ">="
+          value: 89
+      - id: "p2_wind_gt120_lt118"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 120
+          max_hours: null
+        condition:
+          operator: "<"
+          value: 118
+      - id: "p2_surge_72_120_lt15"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 72
+          max_hours: 120
+        condition:
+          operator: "<"
+          value: 1.5
+      - id: "p2_rain_6_7d_lt150"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 6
+          max_days: 7
+        condition:
+          operator: "<"
+          value: 150
+    trigger_logic:
+      boolean_expression: "((p2_wind_72_120_ge89 AND p2_wind_72_120_lt118) OR (p2_wind_gt120_ge89 AND p2_wind_gt120_lt118) OR p2_surge_72_120_lt15 OR p2_rain_6_7d_lt150)"
+  - phase_id: "p3_community_early_action"
+    phase_name: "Community early action"
+    phase_type: "activation"
+    sequence: 3
+    lead_time:
+      min_hours: 36
+      max_hours: 72
+      min_days: null
+      max_days: null
+    applies_to_spatial_condition_ids:
+      - "area_bd_coastal_zone"
+    source_trigger_text: |-
+      Color Code Actions on likelihood of impacts: Community Early Action (wind: 5, 6; storm surge: 3, 4). Trigger will be activated if any one of the components (wind, storm surge, heavy rainfall) reaches its trigger threshold.
+    indicators:
+      - id: "p3_wind_36_48_ge62"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 36
+          max_hours: 48
+        condition:
+          operator: ">="
+          value: 62
+      - id: "p3_wind_36_48_lt89"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 36
+          max_hours: 48
+        condition:
+          operator: "<"
+          value: 89
+      - id: "p3_wind_48_72_ge62"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: ">="
+          value: 62
+      - id: "p3_wind_48_72_lt89"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: "<"
+          value: 89
+      - id: "p3_surge_36_48_lt15"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 36
+          max_hours: 48
+        condition:
+          operator: "<"
+          value: 1.5
+      - id: "p3_surge_48_72_lt15"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: "<"
+          value: 1.5
+    trigger_logic:
+      boolean_expression: "((p3_wind_36_48_ge62 AND p3_wind_36_48_lt89) OR (p3_wind_48_72_ge62 AND p3_wind_48_72_lt89) OR p3_surge_36_48_lt15 OR p3_surge_48_72_lt15)"
+  - phase_id: "p4_govt_readiness"
+    phase_name: "Only government readiness"
+    phase_type: "readiness"
+    sequence: 4
+    lead_time:
+      min_hours: 72
+      max_hours: null
+      min_days: null
+      max_days: null
+    applies_to_spatial_condition_ids:
+      - "area_bd_coastal_zone"
+    source_trigger_text: |-
+      Color Code Actions on likelihood of impacts: Only Govt. Readiness (wind: 7, 8; storm surge: 5, 6, 7, 8; rainfall: 3, 4, 5). Trigger will be activated if any one of the components (wind, storm surge, heavy rainfall) reaches its trigger threshold.
+    indicators:
+      - id: "p4_wind_gt120_ge118"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 120
+          max_hours: null
+        condition:
+          operator: ">="
+          value: 118
+      - id: "p4_surge_72_120_ge15"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 72
+          max_hours: 120
+        condition:
+          operator: ">="
+          value: 1.5
+      - id: "p4_surge_72_120_lt36"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 72
+          max_hours: 120
+        condition:
+          operator: "<"
+          value: 3.6
+      - id: "p4_surge_gt120_ge15"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 120
+          max_hours: null
+        condition:
+          operator: ">="
+          value: 1.5
+      - id: "p4_rain_7_10d_ge150"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 7
+          max_days: 10
+        condition:
+          operator: ">="
+          value: 150
+    trigger_logic:
+      boolean_expression: "(p4_wind_gt120_ge118 OR (p4_surge_72_120_ge15 AND p4_surge_72_120_lt36) OR p4_surge_gt120_ge15 OR p4_rain_7_10d_ge150)"
+  - phase_id: "p5_govt_early_action"
+    phase_name: "Only government early action"
+    phase_type: "activation"
+    sequence: 5
+    lead_time:
+      min_hours: 36
+      max_hours: 120
+      min_days: null
+      max_days: null
+    applies_to_spatial_condition_ids:
+      - "area_bd_coastal_zone"
+    source_trigger_text: |-
+      Color Code Actions on likelihood of impacts: Only Govt. Early Action (wind: 9, 10; storm surge: 9, 10; rainfall: 6, 7). Trigger will be activated if any one of the components (wind, storm surge, heavy rainfall) reaches its trigger threshold.
+    indicators:
+      - id: "p5_wind_36_48_ge89"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 36
+          max_hours: 48
+        condition:
+          operator: ">="
+          value: 89
+      - id: "p5_wind_36_48_lt118"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 36
+          max_hours: 48
+        condition:
+          operator: "<"
+          value: 118
+      - id: "p5_wind_48_72_ge89"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: ">="
+          value: 89
+      - id: "p5_wind_48_72_lt118"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: "<"
+          value: 118
+      - id: "p5_surge_36_48_ge15"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 36
+          max_hours: 48
+        condition:
+          operator: ">="
+          value: 1.5
+      - id: "p5_surge_36_48_lt36"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 36
+          max_hours: 48
+        condition:
+          operator: "<"
+          value: 3.6
+      - id: "p5_surge_48_72_ge15"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: ">="
+          value: 1.5
+      - id: "p5_surge_48_72_lt36"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: "<"
+          value: 3.6
+      - id: "p5_rain_2_3d_lt150"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 2
+          max_days: 3
+        condition:
+          operator: "<"
+          value: 150
+      - id: "p5_rain_4_5d_lt150"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 4
+          max_days: 5
+        condition:
+          operator: "<"
+          value: 150
+    trigger_logic:
+      boolean_expression: "((p5_wind_36_48_ge89 AND p5_wind_36_48_lt118) OR (p5_wind_48_72_ge89 AND p5_wind_48_72_lt118) OR (p5_surge_36_48_ge15 AND p5_surge_36_48_lt36) OR (p5_surge_48_72_ge15 AND p5_surge_48_72_lt36) OR p5_rain_2_3d_lt150 OR p5_rain_4_5d_lt150)"
+  - phase_id: "p6_readiness_all_actors"
+    phase_name: "Readiness anticipatory action (all actors)"
+    phase_type: "scale_up"
+    sequence: 6
+    lead_time:
+      min_hours: 48
+      max_hours: 168
+      min_days: null
+      max_days: null
+    applies_to_spatial_condition_ids:
+      - "area_bd_coastal_zone"
+    source_trigger_text: |-
+      Color Code Actions on likelihood of impacts: Readiness Anticipatory Action, all actors (wind: 11, 12, 13; storm surge: 11, 12, 13; rainfall: 8, 9, 10, 11). Trigger will be activated if any one of the components (wind, storm surge, heavy rainfall) reaches its trigger threshold.
+    indicators:
+      - id: "p6_wind_48_72_ge118"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: ">="
+          value: 118
+      - id: "p6_wind_48_72_lt222"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: "<"
+          value: 222
+      - id: "p6_wind_72_120_ge118"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 72
+          max_hours: 120
+        condition:
+          operator: ">="
+          value: 118
+      - id: "p6_surge_48_72_ge36"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: ">="
+          value: 3.6
+      - id: "p6_surge_48_72_le50"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: "<="
+          value: 5.0
+      - id: "p6_surge_72_120_ge36"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 72
+          max_hours: 120
+        condition:
+          operator: ">="
+          value: 3.6
+      - id: "p6_rain_4_5d_ge150"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 4
+          max_days: 5
+        condition:
+          operator: ">="
+          value: 150
+      - id: "p6_rain_4_5d_lt200"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 4
+          max_days: 5
+        condition:
+          operator: "<"
+          value: 200
+      - id: "p6_rain_6_7d_ge150"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 6
+          max_days: 7
+        condition:
+          operator: ">="
+          value: 150
+    trigger_logic:
+      boolean_expression: "((p6_wind_48_72_ge118 AND p6_wind_48_72_lt222) OR p6_wind_72_120_ge118 OR (p6_surge_48_72_ge36 AND p6_surge_48_72_le50) OR p6_surge_72_120_ge36 OR (p6_rain_4_5d_ge150 AND p6_rain_4_5d_lt200) OR p6_rain_6_7d_ge150)"
+  - phase_id: "p7_activation_all_actors"
+    phase_name: "Activate anticipatory action (all actors)"
+    phase_type: "activation"
+    phase_level: null
+    sequence: 7
+    lead_time:
+      min_hours: 36
+      max_hours: 120
+      min_days: null
+      max_days: null
+    applies_to_spatial_condition_ids:
+      - "area_bd_coastal_zone"
+    source_trigger_text: |-
+      Color Code Actions on likelihood of impacts: Activate Anticipatory Action, all actors (wind: 14, 15, 16; storm surge: 14, 15, 16; rainfall: 12, 13, 14, 15, 16). Trigger will be activated if any one of the components (wind, storm surge, heavy rainfall) reaches its trigger threshold. There is no stop mechanism envisaged.
+    indicators:
+      - id: "p7_wind_36_48_ge118"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 36
+          max_hours: 48
+        condition:
+          operator: ">="
+          value: 118
+      - id: "p7_wind_48_72_ge222"
+        data_source_id: "BMD_CYCLONE_FORECAST"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "wind_speed_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: ">="
+          value: 222
+      - id: "p7_surge_36_48_ge36"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 36
+          max_hours: 48
+        condition:
+          operator: ">="
+          value: 3.6
+      - id: "p7_surge_48_72_gt50"
+        data_source_id: "BMD_MRI_STORM_SURGE"
+        spatial_condition_id: "area_bd_coastal_zone"
+        variable: "storm_surge_height_landfall"
+        metric_type: "value"
+        unit: "m"
+        lead_time:
+          min_hours: 48
+          max_hours: 72
+        condition:
+          operator: ">"
+          value: 5.0
+      - id: "p7_rain_2_3d_ge150"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 2
+          max_days: 3
+        condition:
+          operator: ">="
+          value: 150
+      - id: "p7_rain_4_5d_ge200"
+        data_source_id: "BMD_RAINFALL_FORECAST"
+        spatial_condition_id: "area_bd_eastern_zone"
+        variable: "rainfall_72h_accumulated"
+        metric_type: "value"
+        unit: "mm"
+        lead_time:
+          min_hours: null
+          max_hours: null
+          min_days: 4
+          max_days: 5
+        condition:
+          operator: ">="
+          value: 200
+    trigger_logic:
+      boolean_expression: "(p7_wind_36_48_ge118 OR p7_wind_48_72_ge222 OR p7_surge_36_48_ge36 OR p7_surge_48_72_gt50 OR p7_rain_2_3d_ge150 OR p7_rain_4_5d_ge200)"
