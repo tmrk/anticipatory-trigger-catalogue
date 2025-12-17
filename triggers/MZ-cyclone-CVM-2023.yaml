@@ -1,0 +1,121 @@
+schema_version: "AA-Trigger-Core-0.1.2"
+language: "en"
+trigger_set_id: "MZ_CYCLONE_EAP2023MZ03"
+name: "Mozambique – Cyclone – EAP2023MZ03 trigger mechanism"
+document_type: "EAP"
+source:
+  document_title: "Early Action Protocol Summary – Mozambique | Cyclone"
+  implementing_org: "Cruz Vermelha de Mozambique (CVM)"
+  countries: ["MZ"]
+  year: 2023
+  document_language: "en"
+  document_download_url: "https://www.anticipation-hub.org/Documents/EAPs/EAP_Mozambique_Cyclone.pdf"
+  aa_scheme: "RCRC_DREF"
+  section_reference: "Section 2: 'How the EAP will be activated – The Trigger' (page 5)"
+  accessed_date: "2025-12-17"
+  original_document_type: "Early Action Protocol Summary"
+data_sources:
+  - id: "INAM_72H_FORECAST"
+    name: "INAM cyclone alert / 72-hour forecast"
+    provider: "National Meteorological Institute (INAM), Mozambique"
+    type: "forecast"
+    url: ""
+  - id: "GOV_DECISION_MANUAL"
+    name: "Official disaster alert / expert consensus (manual decision)"
+    provider: "CTGC/INGD/CVM/IFRC and technical experts"
+    type: "manual"
+    url: ""
+spatial_conditions:
+  - id: "AREA_COASTAL_WITHIN_120KM_LANDFALL"
+    label: "Coastal districts within a 120 km radius from the forecasted landfall location (Mozambique)"
+    feature_type: "area"
+phases:
+  - phase_id: "ACTIVATION"
+    phase_name: "Activation"
+    phase_type: "activation"
+    sequence: 1
+    lead_time:
+      min_hours: 72
+      max_hours: 72
+      min_days: 3
+      max_days: 3
+    applies_to_spatial_condition_ids:
+      - "AREA_COASTAL_WITHIN_120KM_LANDFALL"
+    source_trigger_text: |-
+      Based on the level of the alert, INGC calls a meeting of the Technical Committee for Disaster Management (CTGC), of which CVM is a member. If the CTGC decides to send out a disaster alert, CVM (and others) can start acting, i.e. only following the official announcement of an alert by the CTGC can CVM activate the EAP.
+      The threshold or trigger for activation of this EAP will be a category 3 cyclone with an anticipated speed of 120 km/h or more at landfall, as indicated by INAM in their 72-hour forecast.
+      In exceptional cases, the EAP may be activated below the trigger threshold of 120 km/h it means 100km/h based on expert consensus, if levels of vulnerability have significantly increased at the time of activation due to compounding risks...
+    indicators:
+      - id: "i_ctgc_alert"
+        data_source_id: "GOV_DECISION_MANUAL"
+        spatial_condition_id: "AREA_COASTAL_WITHIN_120KM_LANDFALL"
+        variable: "ctgc_disaster_alert_announced"
+        metric_type: "boolean"
+        unit: null
+        condition:
+          operator: "=="
+          value: true
+      - id: "i_wind_ge120"
+        data_source_id: "INAM_72H_FORECAST"
+        spatial_condition_id: "AREA_COASTAL_WITHIN_120KM_LANDFALL"
+        variable: "forecast_wind_speed_at_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        condition:
+          operator: ">="
+          value: 120
+          reference_value_type: "absolute"
+          reference_name: null
+          reference_offset: null
+      - id: "i_wind_ge100"
+        data_source_id: "INAM_72H_FORECAST"
+        spatial_condition_id: "AREA_COASTAL_WITHIN_120KM_LANDFALL"
+        variable: "forecast_wind_speed_at_landfall"
+        metric_type: "value"
+        unit: "km/h"
+        condition:
+          operator: ">="
+          value: 100
+          reference_value_type: "absolute"
+          reference_name: null
+          reference_offset: null
+      - id: "i_expert_consensus"
+        data_source_id: "GOV_DECISION_MANUAL"
+        spatial_condition_id: "AREA_COASTAL_WITHIN_120KM_LANDFALL"
+        variable: "expert_consensus_to_activate_below_threshold"
+        metric_type: "boolean"
+        unit: null
+        condition:
+          operator: "=="
+          value: true
+      - id: "i_track_shift_unlikely_impacts"
+        data_source_id: "GOV_DECISION_MANUAL"
+        spatial_condition_id: "AREA_COASTAL_WITHIN_120KM_LANDFALL"
+        variable: "selected_communities_unlikely_to_suffer_impacts_due_to_track_change"
+        metric_type: "boolean"
+        unit: null
+        condition:
+          operator: "=="
+          value: true
+      - id: "i_communities_notified"
+        data_source_id: "GOV_DECISION_MANUAL"
+        spatial_condition_id: "AREA_COASTAL_WITHIN_120KM_LANDFALL"
+        variable: "communities_notified_of_impending_support"
+        metric_type: "boolean"
+        unit: null
+        condition:
+          operator: "=="
+          value: true
+      - id: "i_distributions_begun"
+        data_source_id: "GOV_DECISION_MANUAL"
+        spatial_condition_id: "AREA_COASTAL_WITHIN_120KM_LANDFALL"
+        variable: "distributions_begun"
+        metric_type: "boolean"
+        unit: null
+        condition:
+          operator: "=="
+          value: true
+    trigger_logic:
+      boolean_expression: "i_ctgc_alert AND (i_wind_ge120 OR (i_wind_ge100 AND i_expert_consensus))"
+    stop_logic:
+      boolean_expression: "i_track_shift_unlikely_impacts AND (NOT i_communities_notified) AND (NOT i_distributions_begun)"
