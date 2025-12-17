@@ -10,7 +10,7 @@ source:
   countries: ["MZ"]
   year: 2025
   document_language: "en"
-  document_download_url: ""
+  document_download_url: "https://www.welthungerhilfe.org/fileadmin/pictures/publications/en/project_and_professional_papers/2025-anticipatory-action-plan-aap-moz-tropical-cyclones.pdf"
   aa_scheme: "WAHAFA"
   section_reference: "Summary table p.3; Section 3 Trigger Model pp.10–17; Stop mechanism section 3.5; Operationalization section 5.4. Schema fields per AA-Trigger-Core-0.1.2 template and schema extensions."
   accessed_date: "2025-12-11"
